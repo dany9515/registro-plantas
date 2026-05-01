@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Operativo de Plantas</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17; --bg2: #111724; --bg3: #181f2e; --card: #1a2235;
+    --border: #2a3a55; --accent: #00c8ff; --accent2: #ff6b35;
+    --green: #00e676; --yellow: #ffd600; --red: #ff1744;
+    --text: #e0eaf8; --muted: #6b82a8;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-body: 'Exo 2', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+  /* LOGIN */
+  .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; background: radial-gradient(ellipse at 30% 20%, rgba(0,200,255,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(255,107,53,0.06) 0%, transparent 60%); }
+  .login-logo { font-family: var(--font-head); font-size: 2rem; font-weight: 700; color: var(--accent); letter-spacing: 3px; margin-bottom: 4px; }
+  .login-sub { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; margin-bottom: 32px; }
+  .login-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; width: 100%; max-width: 360px; box-shadow: 0 8px 40px rgba(0,0,0,0.4); }
+  .login-card h2 { font-family: var(--font-head); font-size: 1.2rem; letter-spacing: 2px; color: var(--text); margin-bottom: 20px; text-align: center; }
+  .login-field { margin-bottom: 14px; }
+  .login-field label { display: block; font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; }
+  .login-field input { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-family: var(--font-body); font-size: 0.95rem; padding: 10px 12px; outline: none; transition: border-color 0.2s; }
+  .login-field input:focus { border-color: var(--accent); }
+  .login-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent), #0099cc); border: none; border-radius: 8px; color: #000; font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
+  .login-btn:hover { transform: translateY(-1px); }
+  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .login-error { background: rgba(255,23,68,0.15); border: 1px solid rgba(255,23,68,0.3); border-radius: 7px; padding: 10px 12px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--red); margin-top: 12px; display: none; }
+
+  /* APP */
+  .app-screen { display: none; }
+  .app-header { background: linear-gradient(135deg, #0d1929, #111f35); border-bottom: 2px solid var(--accent); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 24px rgba(0,200,255,0.1); }
+  .app-header h1 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+  .app-header h1 span { color: var(--text); }
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .header-user { font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); }
+  .logout-btn { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; cursor: pointer; }
+  .logout-btn:hover { color: var(--red); border-color: var(--red); }
+  .sync-status { font-family: var(--font-mono); font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; }
+  .sync-status.online { background: rgba(0,230,118,0.15); color: var(--green); }
+  .sync-status.offline { background: rgba(255,23,68,0.15); color: var(--red); }
+  .sync-status.syncing { background: rgba(0,200,255,0.15); color: var(--accent); }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 12px; }
+
+  .turno-bar { display: flex; gap: 6px; margin-bottom: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 6px; }
+  .turno-btn { flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 7px; background: transparent; color: var(--muted); font-family: var(--font-head); font-size: 0.88rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .turno-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 14px rgba(0,200,255,0.3); }
+
+  .meta-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 11px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field-group label { display: block; font-family: var(--font-mono); font-size: 0.63rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+  .field-group input { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 0.88rem; padding: 7px 9px; outline: none; transition: border-color 0.2s; }
+  .field-group input:focus { border-color: var(--accent); }
+
+  .plant-nav { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 3px; scrollbar-width: none; }
+  .plant-nav::-webkit-scrollbar { display: none; }
+  .plant-tab { white-space: nowrap; padding: 6px 13px; border: 1px solid var(--border); border-radius: 20px; background: var(--bg2); color: var(--muted); font-family: var(--font-head); font-size: 0.83rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+  .plant-tab.active { background: var(--accent2); color: #fff; border-color: var(--accent2); box-shadow: 0 0 12px rgba(255,107,53,0.3); }
+  .plant-tab.saved { border-color: var(--green); color: var(--green); }
+  .plant-tab.active.saved { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+
+  .plant-panel { display: none; }
+  .plant-panel.active { display: block; }
+
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .section-header { background: linear-gradient(90deg, var(--bg3), var(--bg2)); border-bottom: 1px solid var(--border); padding: 8px 13px; display: flex; align-items: center; gap: 7px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 5px var(--accent); flex-shrink: 0; }
+  .section-header h3 { font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+  .section-body { padding: 11px; }
+
+  .field-row { display: grid; gap: 8px; margin-bottom: 8px; }
+  .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-family: var(--font-mono); font-size: 0.61rem; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+  .field input[type="number"], .field input[type="text"] { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-mono); font-size: 0.88rem; padding: 7px 8px; outline: none; width: 100%; transition: border-color 0.2s; }
+  .field input:focus { border-color: var(--accent); }
+  .field textarea { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 0.84rem; padding: 7px 9px; outline: none; width: 100%; resize: vertical; min-height: 62px; transition: border-color 0.2s; }
+  .field textarea:focus { border-color: var(--accent); }
+
+  /* ESTADO - deselectable */
+  .estado-group { display: flex; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .estado-btn { flex: 1; padding: 7px 3px; border: none; background: var(--bg2); color: var(--muted); font-family: var(--font-head); font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .estado-btn:not(:last-child) { border-right: 1px solid var(--border); }
+  .estado-btn.es { background: rgba(0,230,118,0.18); color: var(--green); }
+  .estado-btn.er { background: rgba(255,214,0,0.15); color: var(--yellow); }
+  .estado-btn.fs { background: rgba(255,23,68,0.15); color: var(--red); }
+  .estado-group.vert { flex-direction: column; }
+  .estado-group.vert .estado-btn:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border); }
+
+  .bomba-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 9px; margin-bottom: 7px; }
+  .bomba-name { font-family: var(--font-head); font-size: 0.76rem; font-weight: 700; letter-spacing: 1px; color: var(--accent); margin-bottom: 7px; text-transform: uppercase; }
+
+  .neumatica-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(42,58,85,0.5); }
+  .neumatica-row:last-child { border-bottom: none; }
+  .neumatica-name { font-size: 0.8rem; color: var(--text); flex: 1; padding-right: 8px; }
+  .neumatica-row .estado-group { width: 190px; flex-shrink: 0; }
+
+  .divider { height: 1px; background: var(--border); margin: 9px 0; }
+
+  .quim-header { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+  .quim-header span { font-family: var(--font-mono); font-size: 0.61rem; color: var(--muted); text-transform: uppercase; }
+  .quim-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 5px; align-items: center; }
+  .quim-name { font-size: 0.76rem; color: var(--text); }
+
+  .save-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent2), #e55a2b); border: none; border-radius: 10px; color: #fff; font-family: var(--font-head); font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 7px; transition: all 0.2s; box-shadow: 0 4px 18px rgba(255,107,53,0.3); }
+  .save-btn:hover { transform: translateY(-1px); }
+  .save-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .historial-btn { width: 100%; padding: 9px; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-family: var(--font-head); font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-top: 7px; transition: all 0.2s; }
+  .historial-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green); color: #000; font-family: var(--font-head); font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; padding: 10px 24px; border-radius: 30px; z-index: 999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 4px 18px rgba(0,230,118,0.4); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); color: #fff; box-shadow: 0 4px 18px rgba(255,23,68,0.4); }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; overflow-y: auto; padding: 14px; }
+  .modal-overlay.show { display: block; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; max-width: 640px; margin: 0 auto; overflow: hidden; }
+  .modal-header { background: var(--bg3); border-bottom: 1px solid var(--border); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-header h2 { font-family: var(--font-head); font-size: 0.92rem; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
+  .modal-body { padding: 13px; max-height: 75vh; overflow-y: auto; }
+  .registro-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px; margin-bottom: 9px; }
+  .registro-meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); margin-bottom: 7px; line-height: 1.7; }
+  .campo { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(42,58,85,0.4); padding: 3px 0; }
+  .campo:last-child { border-bottom: none; }
+  .campo-nombre { color: var(--muted); font-family: var(--font-mono); font-size: 0.7rem; }
+  .campo-valor { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text); }
+  .no-registros { text-align: center; color: var(--muted); font-family: var(--font-mono); font-size: 0.82rem; padding: 28px; }
+
+  .loading-overlay { position: fixed; inset: 0; background: rgba(10,14,23,0.95); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+  .loading-overlay.hidden { display: none; }
+  .spinner { width: 42px; height: 42px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); }
+
+  @media (max-width: 380px) {
+    .field-row.cols-3 { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Iniciando...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">⚡ REGISTRO</div>
+  <div class="login-sub">POZOS DE CAPTACIÓN</div>
+  <div class="login-card">
+    <h2>INGRESAR</h2>
+    <div class="login-field">
+      <label>Correo electrónico</label>
+      <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">ENTRAR</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-screen" id="app-screen">
+  <div class="app-header">
+    <h1>⚡ <span>Registro</span> Plantas</h1>
+    <div class="header-right">
+      <div class="header-user" id="header-user">—</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div class="sync-status online" id="sync-status">🟢 Online</div>
+        <button class="logout-btn" onclick="doLogout()">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="turno-bar">
+      <button class="turno-btn active" onclick="setTurno('Mañana',this)">☀ MAÑANA</button>
+      <button class="turno-btn" onclick="setTurno('Tarde',this)">🌤 TARDE</button>
+      <button class="turno-btn" onclick="setTurno('Noche',this)">🌙 NOCHE</button>
+    </div>
+
+    <div class="meta-card">
+      <div class="field-group"><label>Fecha</label><input type="date" id="meta-fecha"></div>
+      <div class="field-group"><label>Recorredor</label><input type="text" id="meta-recorredor" placeholder="Nombre..." readonly></div>
+    </div>
+
+    <div class="plant-nav">
+      <button class="plant-tab active" onclick="showPlant('23t',this)">23T</button>
+      <button class="plant-tab" onclick="showPlant('17t',this)">17T</button>
+      <button class="plant-tab" onclick="showPlant('ppa',this)">PPA</button>
+      <button class="plant-tab" onclick="showPlant('ed1',this)">ED1</button>
+      <button class="plant-tab" onclick="showPlant('ec19',this)">EC19</button>
+      <button class="plant-tab" onclick="showPlant('aguada',this)">AGUADA</button>
+    </div>
+
+    <!-- ══ 23T ══ -->
+    <div class="plant-panel active" id="panel-23t">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>Inyección</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-1" style="margin-bottom:10px">
+            <div class="field"><label>Presión Inyección (kg/cm²)</label><input type="number" id="23t-pres-iny" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BJ N°1</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bj1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="23t-bj1-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="23t-bj1-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BJ N°2</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bj2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="23t-bj2-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="23t-bj2-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--accent2);box-shadow:0 0 5px var(--accent2)"></div><h3>Transferencia</h3></div>
+        <div class="section-body">
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°1</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bba1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="23t-bba1-amp" placeholder="0"></div>
+            </div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°2</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bba2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="23t-bba2-amp" placeholder="0"></div>
+            </div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>Caudal a 17T (m³/hs)</label><input type="number" id="23t-caudal17t" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="23t-presl-transf" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>Envío a PPA (m³/hr)</label><input type="number" id="23t-envio-ppa" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>Presión Colectora KSB (kg/cm²)</label><input type="number" id="23t-pres-colect" step="0.1" placeholder="0.0"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--yellow);box-shadow:0 0 5px var(--yellow)"></div><h3>Despacho — Bombas Stork</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-3">
+            <div class="field"><label>Stork N°1</label><div class="estado-group vert" id="23t-stork1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°2</label><div class="estado-group vert" id="23t-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°3</label><div class="estado-group vert" id="23t-stork3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          </div>
+          <div class="field-row cols-2" style="margin-top:8px">
+            <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="23t-stork-pres" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>Nivel TK Despacho (m)</label><input type="number" id="23t-nivel-despacho" step="0.01" placeholder="0.00"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanques</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2">
+            <div class="field"><label>TK Skimmer (m)</label><input type="number" id="23t-tk-skimmer" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>TK Inyector (m)</label><input type="number" id="23t-tk-inyector" step="0.01" placeholder="0.00"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>Nivel Seteo Neumática (m)</label><input type="number" id="23t-nivel-seteo" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Nivel Total TK Cortador (m)</label><input type="number" id="23t-nivel-total" step="0.01" placeholder="0.00"></div>
+          </div>
+          <div class="field"><label>Presión Aire / Compresor (PSI)</label><input type="number" id="23t-pres-aire" step="0.1" placeholder="0.0"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#a78bfa;box-shadow:0 0 5px #a78bfa"></div><h3>Neumáticas</h3></div>
+        <div class="section-body">
+          <div class="neumatica-row"><span class="neumatica-name">Transferencia a PPA</span><div class="estado-group" id="23t-neum-ppa"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <div class="neumatica-row"><span class="neumatica-name">Transferencia a 17T y ED</span><div class="estado-group" id="23t-neum-17t"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <div class="neumatica-row"><span class="neumatica-name">Entre TK</span><div class="estado-group" id="23t-neum-tk"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#34d399"></div><h3>Químicos 23T</h3></div>
+        <div class="section-body">
+          <div class="quim-header"><span>Químico</span><span>Nivel (cm)</span><span>Dial Bomba</span></div>
+          <div class="quim-row"><span class="quim-name">Desemulsionante</span><input type="number" id="23t-q1-nivel" placeholder="cm"><input type="number" id="23t-q1-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="23t-q2-nivel" placeholder="cm"><input type="number" id="23t-q2-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="23t-q3-nivel" placeholder="cm"><input type="number" id="23t-q3-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Bactericida 320 (2)</span><input type="number" id="23t-q4-nivel" placeholder="cm"><input type="number" id="23t-q4-dial" step="0.1" placeholder="dial"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades 23T</h3></div>
+        <div class="section-body"><div class="field"><textarea id="23t-novedades" placeholder="Novedades del turno..."></textarea></div></div>
+      </div>
+      <button class="save-btn" id="btn-23t" onclick="guardarPlanta('23T')">💾 GUARDAR PLANTA 23T</button>
+      <button class="historial-btn" onclick="verHistorial('23T')">📋 VER HISTORIAL 23T</button>
+    </div>
+
+    <!-- ══ 17T ══ -->
+    <div class="plant-panel" id="panel-17t">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>Inyección</h3></div>
+        <div class="section-body">
+          <div class="field"><label>Presión Inyección (kg/cm²)</label><input type="number" id="17t-pres-iny" step="0.1" placeholder="0.0"></div>
+          <div class="divider"></div>
+          <div class="bomba-card">
+            <div class="bomba-name">B. Jackson</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="17t-bj-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="17t-bj-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="17t-bj-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">Quintuplex</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="17t-quint-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="17t-quint-amp" placeholder="0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanque y Caudal</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-3">
+            <div class="field"><label>Nivel TK (m)</label><input type="number" id="17t-nivel-tk" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Caudal Ingreso (m³/hs)</label><input type="number" id="17t-caudal-ingreso" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>Presión Gas (kg/cm²)</label><input type="number" id="17t-pres-gas" step="0.1" placeholder="0.0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#a78bfa;box-shadow:0 0 5px #a78bfa"></div><h3>Neumáticas</h3></div>
+        <div class="section-body">
+          <div class="neumatica-row"><span class="neumatica-name">Ingreso al Tanque</span><div class="estado-group" id="17t-neum-ing"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <div class="neumatica-row"><span class="neumatica-name">Recirculación General</span><div class="estado-group" id="17t-neum-recir"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <div class="neumatica-row"><span class="neumatica-name">Contra Presión BBA BJ</span><div class="estado-group" id="17t-neum-contra"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades 17T</h3></div>
+        <div class="section-body"><div class="field"><textarea id="17t-novedades" placeholder="Novedades del turno..."></textarea></div></div>
+      </div>
+      <button class="save-btn" id="btn-17t" onclick="guardarPlanta('17T')">💾 GUARDAR PLANTA 17T</button>
+      <button class="historial-btn" onclick="verHistorial('17T')">📋 VER HISTORIAL 17T</button>
+    </div>
+
+    <!-- ══ PPA ══ -->
+    <div class="plant-panel" id="panel-ppa">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>Bombas Inyección</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2" style="margin-bottom:10px">
+            <div class="field"><label>Presión Inyección (kg/cm²)</label><input type="number" id="ppa-pres-iny" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>Presión Aire / Compresor (PSI)</label><input type="number" id="ppa-pres-aire" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°1</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-bba1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ppa-bba1-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ppa-bba1-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°2</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-bba2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ppa-bba2-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ppa-bba2-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°3</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-bba3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ppa-bba3-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ppa-bba3-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°5</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-bba5-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ppa-bba5-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ppa-bba5-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanque</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2">
+            <div class="field"><label>Nivel TK (m)</label><input type="number" id="ppa-nivel-tk" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Depósito Aceite (lts)</label><input type="number" id="ppa-aceite" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades PPA</h3></div>
+        <div class="section-body"><div class="field"><textarea id="ppa-novedades" placeholder="Novedades del turno..."></textarea></div></div>
+      </div>
+      <button class="save-btn" id="btn-ppa" onclick="guardarPlanta('PPA')">💾 GUARDAR PLANTA PPA</button>
+      <button class="historial-btn" onclick="verHistorial('PPA')">📋 VER HISTORIAL PPA</button>
+    </div>
+
+    <!-- ══ ED1 ══ -->
+    <div class="plant-panel" id="panel-ed1">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>Bombas Inyección</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2" style="margin-bottom:10px">
+            <div class="field"><label>Presión Inyección (kg/cm²)</label><input type="number" id="ed1-pres-iny" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>Presión Ingreso (kg/cm²)</label><input type="number" id="ed1-pres-ingreso" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°1</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-bba1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ed1-bba1-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ed1-bba1-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°2</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-bba2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ed1-bba2-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ed1-bba2-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°3</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-bba3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ed1-bba3-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ed1-bba3-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+          <div class="bomba-card">
+            <div class="bomba-name">BBA N°4</div>
+            <div class="field-row cols-2">
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-bba4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>AMP</label><input type="number" id="ed1-bba4-amp" placeholder="0"></div>
+            </div>
+            <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ed1-bba4-contra" step="0.1" placeholder="0.0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanque</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2">
+            <div class="field"><label>Nivel TK (m)</label><input type="number" id="ed1-nivel-tk" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Cuba de Aceite (lts)</label><input type="number" id="ed1-aceite" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#a78bfa;box-shadow:0 0 5px #a78bfa"></div><h3>Neumáticas</h3></div>
+        <div class="section-body">
+          <div class="neumatica-row"><span class="neumatica-name">Recirculación General</span><div class="estado-group" id="ed1-neum-recir"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <div class="neumatica-row"><span class="neumatica-name">Ingreso al Tanque</span><div class="estado-group" id="ed1-neum-ing"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades ED1</h3></div>
+        <div class="section-body"><div class="field"><textarea id="ed1-novedades" placeholder="Novedades del turno..."></textarea></div></div>
+      </div>
+      <button class="save-btn" id="btn-ed1" onclick="guardarPlanta('ED1')">💾 GUARDAR PLANTA ED1</button>
+      <button class="historial-btn" onclick="verHistorial('ED1')">📋 VER HISTORIAL ED1</button>
+    </div>
+
+    <!-- ══ EC19 ══ -->
+    <div class="plant-panel" id="panel-ec19">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>Inyección — Bombas SIAM</h3></div>
+        <div class="section-body">
+          <div class="field" style="margin-bottom:10px"><label>Presión Inyección (kg/cm²)</label><input type="number" id="ec19-pres-iny" step="0.1" placeholder="0.0"></div>
+          <div class="divider"></div>
+          <div class="field-row cols-2">
+            <div class="field"><label>SIAM N°1 — Estado</label><div class="estado-group" id="ec19-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>AMP</label><input type="number" id="ec19-siam1-amp" placeholder="0"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>SIAM N°2 — Estado</label><div class="estado-group" id="ec19-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>AMP</label><input type="number" id="ec19-siam2-amp" placeholder="0"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>SIAM N°3 — Estado</label><div class="estado-group" id="ec19-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>AMP</label><input type="number" id="ec19-siam3-amp" placeholder="0"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>SIAM N°4 — Estado</label><div class="estado-group" id="ec19-siam4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>AMP</label><input type="number" id="ec19-siam4-amp" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--yellow);box-shadow:0 0 5px var(--yellow)"></div><h3>Despacho — Bombas Stork</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2">
+            <div class="field"><label>Stork N°1 — Estado</label><div class="estado-group" id="ec19-stork1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>AMP</label><input type="number" id="ec19-stork1-amp" placeholder="0"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>Stork N°2 — Estado</label><div class="estado-group" id="ec19-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>AMP</label><input type="number" id="ec19-stork2-amp" placeholder="0"></div>
+          </div>
+          <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="ec19-stork-pres" step="0.1" placeholder="0.0"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanques</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2">
+            <div class="field"><label>Nivel Total TK (m)</label><input type="number" id="ec19-nivel-total" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Nivel Agua / Interfaz (m)</label><input type="number" id="ec19-interfaz" step="0.01" placeholder="0.00"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>TK Despacho (m)</label><input type="number" id="ec19-nivel-despacho" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Depósito Aceite (lts)</label><input type="number" id="ec19-aceite" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#34d399"></div><h3>Químicos EC19</h3></div>
+        <div class="section-body">
+          <div class="quim-header"><span>Químico</span><span>Nivel (cm)</span><span>Dial Bomba</span></div>
+          <div class="quim-row"><span class="quim-name">Desemulsionante</span><input type="number" id="ec19-q1-nivel" placeholder="cm"><input type="number" id="ec19-q1-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="ec19-q2-nivel" placeholder="cm"><input type="number" id="ec19-q2-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="ec19-q3-nivel" placeholder="cm"><input type="number" id="ec19-q3-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Bactericida 320 (2)</span><input type="number" id="ec19-q4-nivel" placeholder="cm"><input type="number" id="ec19-q4-dial" step="0.1" placeholder="dial"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades EC19</h3></div>
+        <div class="section-body"><div class="field"><textarea id="ec19-novedades" placeholder="Novedades del turno..."></textarea></div></div>
+      </div>
+      <button class="save-btn" id="btn-ec19" onclick="guardarPlanta('EC19')">💾 GUARDAR PLANTA EC19</button>
+      <button class="historial-btn" onclick="verHistorial('EC19')">📋 VER HISTORIAL EC19</button>
+    </div>
+
+    <!-- ══ AGUADA ══ -->
+    <div class="plant-panel" id="panel-aguada">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>Aguada del Norte</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-3">
+            <div class="field"><label>Caudal Salida (m³/hs)</label><input type="number" id="aguada-caudal" step="0.1" placeholder="0.0"></div>
+            <div class="field"><label>AMP Bomba KSB</label><input type="number" id="aguada-amp" placeholder="0"></div>
+            <div class="field"><label>Presión Impulsión (kg/cm²)</label><input type="number" id="aguada-pres" step="0.1" placeholder="0.0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades Aguada</h3></div>
+        <div class="section-body"><div class="field"><textarea id="aguada-novedades" placeholder="Novedades del turno..."></textarea></div></div>
+      </div>
+      <button class="save-btn" id="btn-aguada" onclick="guardarPlanta('AGUADA')">💾 GUARDAR AGUADA DEL NORTE</button>
+      <button class="historial-btn" onclick="verHistorial('AGUADA')">📋 VER HISTORIAL AGUADA</button>
+    </div>
+
+  </div><!-- end container -->
+</div><!-- end app-screen -->
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Historial</h2>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAyfyQqHueENETXPStJGsrJfQ4gpmsbss0",
+  authDomain: "registroplantas-7dc06.firebaseapp.com",
+  projectId: "registroplantas-7dc06",
+  storageBucket: "registroplantas-7dc06.firebasestorage.app",
+  messagingSenderId: "451188828563",
+  appId: "1:451188828563:web:d3e427a527710d53bba066"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Nombres de recorredores por email
+const recorredores = {
+  'leandro.nino@registroplantas.com': 'Leandro Niño',
+  'hugo.juarez@registroplantas.com': 'Hugo Juárez',
+  'maximiliano.rodriguez@registroplantas.com': 'Maximiliano Rodríguez',
+  'david.fuentes@registroplantas.com': 'David Fuentes',
+  'gabriel.espinoza@registroplantas.com': 'Gabriel Espinoza',
+  'carlos.medina@registroplantas.com': 'Carlos Medina',
+  'daniel.aguilar@registroplantas.com': 'Daniel Aguilar',
+  'ricardo.zambrano@registroplantas.com': 'Ricardo Zambrano',
+  'marcelo.barrionuevo@registroplantas.com': 'Marcelo Barrionuevo'
+};
+
+// AUTH STATE
+onAuthStateChanged(auth, user => {
+  document.getElementById('loading').classList.add('hidden');
+  if (user) {
+    const nombre = recorredores[user.email] || user.email;
+    document.getElementById('header-user').textContent = '👤 ' + nombre;
+    document.getElementById('meta-recorredor').value = nombre;
+    document.getElementById('meta-fecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+  }
+});
+
+// LOGIN
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'INGRESANDO...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.textContent = 'Correo o contraseña incorrectos.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'ENTRAR';
+  }
+};
+
+// Enter key login
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.doLogin();
+});
+
+// LOGOUT
+window.doLogout = async function() {
+  await signOut(auth);
+};
+
+// TURNO
+window.turnoActual = 'Mañana';
+window.setTurno = function(t, btn) {
+  window.turnoActual = t;
+  document.querySelectorAll('.turno-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+};
+
+// PLANT NAV
+const plantMap = {'23t':'panel-23t','17t':'panel-17t','ppa':'panel-ppa','ed1':'panel-ed1','ec19':'panel-ec19','aguada':'panel-aguada'};
+window.showPlant = function(id, btn) {
+  document.querySelectorAll('.plant-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.plant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(plantMap[id]).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ESTADO - deselectable
+window.toggleEstado = function(btn, tipo) {
+  const group = btn.closest('.estado-group');
+  const isActive = btn.classList.contains(tipo);
+  group.querySelectorAll('.estado-btn').forEach(b => b.classList.remove('es','er','fs'));
+  if (!isActive) btn.classList.add(tipo);
+};
+
+function getEstado(groupId) {
+  const g = document.getElementById(groupId);
+  if (!g) return '—';
+  const a = g.querySelector('.es,.er,.fs');
+  if (!a) return '—';
+  if (a.classList.contains('es')) return 'En Servicio';
+  if (a.classList.contains('er')) return 'En Reserva';
+  return 'Fuera de Servicio';
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value || '—') : '—';
+}
+
+function recolectarDatos(p) {
+  const d = {};
+  if (p==='23T') {
+    d['Presión Inyección']=getVal('23t-pres-iny');
+    d['BJ1 Estado']=getEstado('23t-bj1-est'); d['BJ1 AMP']=getVal('23t-bj1-amp'); d['BJ1 Contra Presión']=getVal('23t-bj1-contra');
+    d['BJ2 Estado']=getEstado('23t-bj2-est'); d['BJ2 AMP']=getVal('23t-bj2-amp'); d['BJ2 Contra Presión']=getVal('23t-bj2-contra');
+    d['BBA1 Estado']=getEstado('23t-bba1-est'); d['BBA1 AMP']=getVal('23t-bba1-amp');
+    d['BBA2 Estado']=getEstado('23t-bba2-est'); d['BBA2 AMP']=getVal('23t-bba2-amp');
+    d['Caudal a 17T']=getVal('23t-caudal17t'); d['Presión Línea Transf.']=getVal('23t-presl-transf');
+    d['Envío a PPA']=getVal('23t-envio-ppa'); d['Presión Colectora KSB']=getVal('23t-pres-colect');
+    d['Stork 1']=getEstado('23t-stork1-est'); d['Stork 2']=getEstado('23t-stork2-est'); d['Stork 3']=getEstado('23t-stork3-est');
+    d['Stork Presión Línea']=getVal('23t-stork-pres'); d['Nivel TK Despacho']=getVal('23t-nivel-despacho');
+    d['TK Skimmer']=getVal('23t-tk-skimmer'); d['TK Inyector']=getVal('23t-tk-inyector');
+    d['Nivel Seteo Neumática']=getVal('23t-nivel-seteo'); d['Nivel Total TK Cortador']=getVal('23t-nivel-total');
+    d['Presión Aire']=getVal('23t-pres-aire');
+    d['Neumática PPA']=getEstado('23t-neum-ppa'); d['Neumática 17T/ED']=getEstado('23t-neum-17t'); d['Neumática Entre TK']=getEstado('23t-neum-tk');
+    d['Desemulsionante Nivel']=getVal('23t-q1-nivel'); d['Desemulsionante Dial']=getVal('23t-q1-dial');
+    d['Clarificante Nivel']=getVal('23t-q2-nivel'); d['Clarificante Dial']=getVal('23t-q2-dial');
+    d['Bactericida 320(1) Nivel']=getVal('23t-q3-nivel'); d['Bactericida 320(1) Dial']=getVal('23t-q3-dial');
+    d['Bactericida 320(2) Nivel']=getVal('23t-q4-nivel'); d['Bactericida 320(2) Dial']=getVal('23t-q4-dial');
+    d['Novedades']=getVal('23t-novedades');
+  } else if (p==='17T') {
+    d['Presión Inyección']=getVal('17t-pres-iny');
+    d['B.Jackson Estado']=getEstado('17t-bj-est'); d['B.Jackson AMP']=getVal('17t-bj-amp'); d['B.Jackson Contra Presión']=getVal('17t-bj-contra');
+    d['Quintuplex Estado']=getEstado('17t-quint-est'); d['Quintuplex AMP']=getVal('17t-quint-amp');
+    d['Nivel TK']=getVal('17t-nivel-tk'); d['Caudal Ingreso']=getVal('17t-caudal-ingreso'); d['Presión Gas']=getVal('17t-pres-gas');
+    d['Neumática Ingreso TK']=getEstado('17t-neum-ing'); d['Neumática Recirculación']=getEstado('17t-neum-recir'); d['Neumática Contra Presión']=getEstado('17t-neum-contra');
+    d['Novedades']=getVal('17t-novedades');
+  } else if (p==='PPA') {
+    d['Presión Inyección']=getVal('ppa-pres-iny'); d['Presión Aire']=getVal('ppa-pres-aire');
+    d['BBA1 Estado']=getEstado('ppa-bba1-est'); d['BBA1 AMP']=getVal('ppa-bba1-amp'); d['BBA1 Contra Presión']=getVal('ppa-bba1-contra');
+    d['BBA2 Estado']=getEstado('ppa-bba2-est'); d['BBA2 AMP']=getVal('ppa-bba2-amp'); d['BBA2 Contra Presión']=getVal('ppa-bba2-contra');
+    d['BBA3 Estado']=getEstado('ppa-bba3-est'); d['BBA3 AMP']=getVal('ppa-bba3-amp'); d['BBA3 Contra Presión']=getVal('ppa-bba3-contra');
+    d['BBA5 Estado']=getEstado('ppa-bba5-est'); d['BBA5 AMP']=getVal('ppa-bba5-amp'); d['BBA5 Contra Presión']=getVal('ppa-bba5-contra');
+    d['Nivel TK']=getVal('ppa-nivel-tk'); d['Depósito Aceite']=getVal('ppa-aceite');
+    d['Novedades']=getVal('ppa-novedades');
+  } else if (p==='ED1') {
+    d['Presión Inyección']=getVal('ed1-pres-iny'); d['Presión Ingreso']=getVal('ed1-pres-ingreso');
+    d['BBA1 Estado']=getEstado('ed1-bba1-est'); d['BBA1 AMP']=getVal('ed1-bba1-amp'); d['BBA1 Contra Presión']=getVal('ed1-bba1-contra');
+    d['BBA2 Estado']=getEstado('ed1-bba2-est'); d['BBA2 AMP']=getVal('ed1-bba2-amp'); d['BBA2 Contra Presión']=getVal('ed1-bba2-contra');
+    d['BBA3 Estado']=getEstado('ed1-bba3-est'); d['BBA3 AMP']=getVal('ed1-bba3-amp'); d['BBA3 Contra Presión']=getVal('ed1-bba3-contra');
+    d['BBA4 Estado']=getEstado('ed1-bba4-est'); d['BBA4 AMP']=getVal('ed1-bba4-amp'); d['BBA4 Contra Presión']=getVal('ed1-bba4-contra');
+    d['Nivel TK']=getVal('ed1-nivel-tk'); d['Cuba Aceite']=getVal('ed1-aceite');
+    d['Neumática Recirculación']=getEstado('ed1-neum-recir'); d['Neumática Ingreso TK']=getEstado('ed1-neum-ing');
+    d['Novedades']=getVal('ed1-novedades');
+  } else if (p==='EC19') {
+    d['Presión Inyección']=getVal('ec19-pres-iny');
+    d['SIAM1 Estado']=getEstado('ec19-siam1-est'); d['SIAM1 AMP']=getVal('ec19-siam1-amp');
+    d['SIAM2 Estado']=getEstado('ec19-siam2-est'); d['SIAM2 AMP']=getVal('ec19-siam2-amp');
+    d['SIAM3 Estado']=getEstado('ec19-siam3-est'); d['SIAM3 AMP']=getVal('ec19-siam3-amp');
+    d['SIAM4 Estado']=getEstado('ec19-siam4-est'); d['SIAM4 AMP']=getVal('ec19-siam4-amp');
+    d['Stork1 Estado']=getEstado('ec19-stork1-est'); d['Stork1 AMP']=getVal('ec19-stork1-amp');
+    d['Stork2 Estado']=getEstado('ec19-stork2-est'); d['Stork2 AMP']=getVal('ec19-stork2-amp');
+    d['Stork Presión Línea']=getVal('ec19-stork-pres');
+    d['Nivel Total TK']=getVal('ec19-nivel-total'); d['Interfaz']=getVal('ec19-interfaz');
+    d['TK Despacho']=getVal('ec19-nivel-despacho'); d['Depósito Aceite']=getVal('ec19-aceite');
+    d['Desemulsionante Nivel']=getVal('ec19-q1-nivel'); d['Desemulsionante Dial']=getVal('ec19-q1-dial');
+    d['Clarificante Nivel']=getVal('ec19-q2-nivel'); d['Clarificante Dial']=getVal('ec19-q2-dial');
+    d['Bactericida 320(1) Nivel']=getVal('ec19-q3-nivel'); d['Bactericida 320(1) Dial']=getVal('ec19-q3-dial');
+    d['Bactericida 320(2) Nivel']=getVal('ec19-q4-nivel'); d['Bactericida 320(2) Dial']=getVal('ec19-q4-dial');
+    d['Novedades']=getVal('ec19-novedades');
+  } else if (p==='AGUADA') {
+    d['Caudal Salida']=getVal('aguada-caudal'); d['AMP Bomba KSB']=getVal('aguada-amp'); d['Presión Impulsión']=getVal('aguada-pres');
+    d['Novedades']=getVal('aguada-novedades');
+  }
+  return d;
+}
+
+// Contador de vueltas por planta (se resetea al cambiar de turno o fecha)
+const vueltasPorPlanta = {};
+
+window.guardarPlanta = async function(planta) {
+  const btn = document.getElementById('btn-' + planta.toLowerCase());
+  btn.disabled = true; btn.textContent = '⏳ Guardando...';
+  setSyncStatus('syncing','🔄 Guardando...');
+  const fecha = document.getElementById('meta-fecha').value;
+  const recorredor = document.getElementById('meta-recorredor').value || '—';
+
+  // Calcular vuelta
+  const key = planta + '_' + fecha + '_' + window.turnoActual;
+  if (!vueltasPorPlanta[key]) vueltasPorPlanta[key] = 0;
+  vueltasPorPlanta[key]++;
+  const vuelta = vueltasPorPlanta[key];
+
+  // Hora actual
+  const now = new Date();
+  const hora = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  try {
+    await addDoc(collection(db,'registros'), {
+      planta, fecha, turno: window.turnoActual, recorredor,
+      vuelta, hora,
+      datos: recolectarDatos(planta), timestamp: serverTimestamp()
+    });
+    setSyncStatus('online','🟢 Online');
+    showToast(`✔ ${planta} — Vuelta ${vuelta} (${hora})`, false);
+    document.querySelectorAll('.plant-tab').forEach(t => { if(t.textContent.trim()===planta) t.classList.add('saved'); });
+    // Actualizar texto del botón con vuelta guardada
+    btn.disabled = false;
+    btn.textContent = `💾 GUARDAR VUELTA ${vuelta+1} — ${planta}`;
+    return;
+  } catch(e) {
+    setSyncStatus('offline','🔴 Error');
+    showToast('❌ Error al guardar', true);
+    vueltasPorPlanta[key]--; // revertir si falló
+  }
+  btn.disabled = false; btn.textContent = '💾 GUARDAR PLANTA ' + planta;
+};
+
+window.verHistorial = async function(planta) {
+  document.getElementById('modal-title').textContent = 'Historial — ' + planta;
+  document.getElementById('modal-body').innerHTML = '<div class="no-registros">Cargando...</div>';
+  document.getElementById('modal').classList.add('show');
+  try {
+    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
+    const snap = await getDocs(q);
+    if (snap.empty) { document.getElementById('modal-body').innerHTML = '<div class="no-registros">Sin registros aún.</div>'; return; }
+    document.getElementById('modal-body').innerHTML = snap.docs.map(doc => {
+      const r = doc.data();
+      const vueltaLabel = r.vuelta ? `🔄 Vuelta ${r.vuelta}` : '';
+      const horaLabel = r.hora ? `⏱ ${r.hora}hs` : '';
+      const campos = Object.entries(r.datos||{}).filter(([k,v])=>v&&v!=='—')
+        .map(([k,v])=>`<div class="campo"><span class="campo-nombre">${k}</span><span class="campo-valor">${v}</span></div>`).join('');
+      return `<div class="registro-card">
+        <div class="registro-meta">📅 ${r.fecha} &nbsp;|&nbsp; 🌙 ${r.turno} &nbsp;|&nbsp; 👤 ${r.recorredor}</div>
+        <div class="registro-meta" style="color:var(--yellow)">${vueltaLabel} &nbsp; ${horaLabel}</div>
+        ${campos||'(sin datos)'}
+      </div>`;
+    }).join('');
+  } catch(e) { document.getElementById('modal-body').innerHTML = '<div class="no-registros">Error al cargar.</div>'; }
+};
+
+window.cerrarModal = function() { document.getElementById('modal').classList.remove('show'); };
+document.getElementById('modal').addEventListener('click', function(e) { if(e.target===this) window.cerrarModal(); });
+
+function setSyncStatus(type, text) {
+  const el = document.getElementById('sync-status');
+  el.className = 'sync-status ' + type; el.textContent = text;
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast' + (isError?' error':'');
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
