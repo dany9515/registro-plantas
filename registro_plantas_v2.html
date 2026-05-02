@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro Operativo de Plantas</title>
-<link rel="manifest" href="manifest.json">
+
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1043,3 +1043,16 @@ window.cambiarPassword = async function() {
   } catch(e) { err.textContent='Contraseña actual incorrecta.'; err.style.display='block'; }
   btn.disabled=false; btn.textContent='CAMBIAR CONTRASEÑA';
 };
+
+function setSyncStatus(type, text) {
+  const el = document.getElementById('sync-status');
+  el.className='sync-status '+type; el.textContent=text;
+}
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(isError?' error':'');
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
