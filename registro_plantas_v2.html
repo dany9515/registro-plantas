@@ -315,7 +315,11 @@
             <div class="field"><label>Nivel Total TK Cortador (m)</label><input type="number" id="23t-nivel-total" step="0.01" placeholder="0.00"></div>
           </div>
           <div class="field-row cols-2">
-            <div class="field"><label>TK Inyector (m)</label><input type="number" id="23t-tk-inyector" step="0.01" placeholder="0.00"></div>
+            <div class="field">
+              <label>TK Inyector (m)</label>
+              <input type="number" id="23t-tk-inyector" step="0.01" placeholder="0.00" oninput="calcVariacion('23T','23t-tk-inyector','var-23t-inyector')">
+              <div id="var-23t-inyector" style="font-family:var(--font-mono);font-size:0.75rem;margin-top:4px;padding:3px 8px;border-radius:4px;display:none;"></div>
+            </div>
             <div class="field"><label>TK Despacho (m)</label><input type="number" id="23t-nivel-despacho2" step="0.01" placeholder="0.00"></div>
           </div>
           <div class="field"><label>Presión Aire / Compresor (PSI)</label><input type="number" id="23t-pres-aire" step="0.1" placeholder="0.0"></div>
@@ -386,7 +390,11 @@
         <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanque y Caudal</h3></div>
         <div class="section-body">
           <div class="field-row cols-3">
-            <div class="field"><label>Nivel TK (m)</label><input type="number" id="17t-nivel-tk" step="0.01" placeholder="0.00"></div>
+            <div class="field">
+              <label>Nivel TK (m)</label>
+              <input type="number" id="17t-nivel-tk" step="0.01" placeholder="0.00" oninput="calcVariacion('17T','17t-nivel-tk','var-17t-tk')">
+              <div id="var-17t-tk" style="font-family:var(--font-mono);font-size:0.75rem;margin-top:4px;padding:3px 8px;border-radius:4px;display:none;"></div>
+            </div>
             <div class="field"><label>Caudal Ingreso (m³/hs)</label><input type="number" id="17t-caudal-ingreso" step="0.1" placeholder="0.0"></div>
             <div class="field"><label>Presión Gas (kg/cm²)</label><input type="number" id="17t-pres-gas" step="0.1" placeholder="0.0"></div>
           </div>
@@ -459,7 +467,11 @@
         <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanque</h3></div>
         <div class="section-body">
           <div class="field-row cols-2">
-            <div class="field"><label>Nivel TK (m)</label><input type="number" id="ppa-nivel-tk" step="0.01" placeholder="0.00"></div>
+            <div class="field">
+              <label>Nivel TK (m)</label>
+              <input type="number" id="ppa-nivel-tk" step="0.01" placeholder="0.00" oninput="calcVariacion('PPA','ppa-nivel-tk','var-ppa-tk')">
+              <div id="var-ppa-tk" style="font-family:var(--font-mono);font-size:0.75rem;margin-top:4px;padding:3px 8px;border-radius:4px;display:none;"></div>
+            </div>
             <div class="field"><label>Depósito Aceite (lts)</label><input type="number" id="ppa-aceite" placeholder="0"></div>
           </div>
         </div>
@@ -524,7 +536,11 @@
         <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanque</h3></div>
         <div class="section-body">
           <div class="field-row cols-2">
-            <div class="field"><label>Nivel TK (m)</label><input type="number" id="ed1-nivel-tk" step="0.01" placeholder="0.00"></div>
+            <div class="field">
+              <label>Nivel TK (m)</label>
+              <input type="number" id="ed1-nivel-tk" step="0.01" placeholder="0.00" oninput="calcVariacion('ED1','ed1-nivel-tk','var-ed1-tk')">
+              <div id="var-ed1-tk" style="font-family:var(--font-mono);font-size:0.75rem;margin-top:4px;padding:3px 8px;border-radius:4px;display:none;"></div>
+            </div>
             <div class="field"><label>Cuba de Aceite (lts)</label><input type="number" id="ed1-aceite" placeholder="0"></div>
           </div>
         </div>
@@ -771,6 +787,8 @@ onAuthStateChanged(auth, user => {
     document.getElementById('meta-fecha').value = `${dd}/${mm}/${yyyy}`;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
+    // Precargar últimos niveles
+    ['23T','PPA','17T','ED1'].forEach(p => cargarUltimoNivel(p));
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
@@ -790,6 +808,63 @@ window.doLogin = async function() {
 document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 
 window.doLogout = async function() { await signOut(auth); };
+
+// CALCULAR VARIACIÓN EN TIEMPO REAL
+const ultimoNivel = {}; // cache del último nivel guardado por planta
+
+async function cargarUltimoNivel(planta) {
+  const campoNivel = {'23T':'TK Inyector','PPA':'Nivel TK','17T':'Nivel TK','ED1':'Nivel TK'}[planta];
+  if(!campoNivel) return;
+  try {
+    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
+    const snap = await getDocs(q);
+    if(snap.empty) return;
+    const ultimo = snap.docs[0].data();
+    const nivel = parseFloat(ultimo.datos?.[campoNivel]);
+    const ts = ultimo.timestamp?.toMillis ? ultimo.timestamp.toMillis() : 0;
+    if(!isNaN(nivel) && ts) {
+      ultimoNivel[planta] = { nivel, ts };
+    }
+  } catch(e) { console.error(e); }
+}
+
+window.calcVariacion = function(planta, inputId, divId) {
+  const input = document.getElementById(inputId);
+  const div = document.getElementById(divId);
+  const nivelActual = parseFloat(input.value);
+  if(isNaN(nivelActual) || !ultimoNivel[planta]) { div.style.display='none'; return; }
+
+  const { nivel: nivelAnterior, ts } = ultimoNivel[planta];
+  const ahora = Date.now();
+  const diffMin = (ahora - ts) / 60000;
+  if(diffMin <= 0) { div.style.display='none'; return; }
+
+  // Redondeo matemático de horas
+  const horas = Math.round(diffMin / 60);
+  if(horas <= 0) { div.style.display='none'; return; }
+
+  const diffCm = (nivelActual - nivelAnterior) * 100;
+  const cmPorHora = (diffCm / horas).toFixed(1);
+  const flecha = diffCm > 0 ? '⬆️' : diffCm < 0 ? '⬇️' : '➡️';
+  const color = diffCm > 0 ? 'rgba(0,230,118,0.15)' : diffCm < 0 ? 'rgba(255,23,68,0.15)' : 'rgba(255,214,0,0.15)';
+  const textColor = diffCm > 0 ? 'var(--green)' : diffCm < 0 ? 'var(--red)' : 'var(--yellow)';
+
+  div.style.display = 'block';
+  div.style.background = color;
+  div.style.color = textColor;
+  div.textContent = `${flecha} ${Math.abs(cmPorHora)} cm/hr (en ${horas}hs)`;
+};
+
+// Cargar últimos niveles al iniciar cada planta
+const plantNavBtns = document.querySelectorAll('.plant-tab');
+plantNavBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const planta = btn.textContent.trim();
+    if(['23T','PPA','17T','ED1'].includes(planta)) {
+      cargarUltimoNivel(planta);
+    }
+  });
+});
 
 // TURNO
 window.turnoActual = 'Mañana';
@@ -983,6 +1058,41 @@ window.verHistorial = async function(planta) {
     if(snap.empty) { document.getElementById('modal-body').innerHTML='<div class="no-registros">Sin registros aún.</div>'; return; }
     const currentUser = auth.currentUser?.email||'';
     const ahora = Date.now();
+    const docs = snap.docs.map(d => d.data());
+
+    // Calcular variación de nivel entre registros consecutivos
+    const nivelCampos = {
+      '23T': 'TK Inyector',
+      'PPA': 'Nivel TK',
+      '17T': 'Nivel TK',
+      'ED1': 'Nivel TK'
+    };
+
+    // docs ya vienen ordenados de más nuevo a más viejo
+    // Para calcular variación comparamos cada doc con el siguiente (más viejo)
+    const variaciones = {};
+    const campoNivel = nivelCampos[planta];
+    if(campoNivel) {
+      for(let i=0; i<docs.length-1; i++) {
+        const curr = docs[i];   // más reciente
+        const prev = docs[i+1]; // más viejo
+        const nivelCurr = parseFloat(curr.datos?.[campoNivel]);
+        const nivelPrev = parseFloat(prev.datos?.[campoNivel]);
+        if(isNaN(nivelCurr)||isNaN(nivelPrev)) continue;
+        // calcular diferencia de tiempo usando timestamp
+        const tsCurr = curr.timestamp?.toMillis ? curr.timestamp.toMillis() : 0;
+        const tsPrev = prev.timestamp?.toMillis ? prev.timestamp.toMillis() : 0;
+        if(!tsCurr||!tsPrev||tsCurr===tsPrev) continue;
+        const diffMin = (tsCurr - tsPrev) / 60000;
+        if(diffMin <= 0) continue;
+        const diffCm = (nivelCurr - nivelPrev) * 100;
+        const cmPorHora = (diffCm / diffMin * 60).toFixed(1);
+        const flecha = diffCm > 0 ? '⬆️' : diffCm < 0 ? '⬇️' : '➡️';
+        const docId = snap.docs[i].id;
+        variaciones[docId] = `${flecha} ${Math.abs(cmPorHora)} cm/hr (vs registro anterior — ${prev.hora||'—'}hs)`;
+      }
+    }
+
     document.getElementById('modal-body').innerHTML = snap.docs.map(docSnap => {
       const r = docSnap.data();
       const ts = r.timestamp?.toMillis ? r.timestamp.toMillis() : 0;
@@ -990,9 +1100,12 @@ window.verHistorial = async function(planta) {
       const campos = Object.entries(r.datos||{}).filter(([k,v])=>v&&v!=='—')
         .map(([k,v])=>`<div class="campo"><span class="campo-nombre">${k}</span><span class="campo-valor">${v}</span></div>`).join('');
       const editadoLabel = r.editado ? '<span style="color:var(--muted);font-size:0.65rem"> ✏️ editado</span>' : '';
+      const varKey = docSnap.id;
+      const variacion = variaciones[varKey] ? `<div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--green);margin-bottom:6px;padding:4px 8px;background:rgba(0,230,118,0.1);border-radius:4px;">📊 Variación nivel: ${variaciones[varKey]}</div>` : '';
       return `<div class="registro-card">
         <div class="registro-meta">📅 ${r.fecha} | 🌙 ${r.turno} | 👤 ${r.recorredor}${editadoLabel}</div>
         <div class="registro-vuelta">🔄 Vuelta ${r.vuelta||'—'} &nbsp; ⏱ ${r.hora||'—'}hs</div>
+        ${variacion}
         ${campos||'(sin datos)'}
         ${puedeEditar ? `<button class="edit-btn" onclick="editarRegistro('${docSnap.id}','${planta}')">✏️ Editar</button>` : ''}
       </div>`;
