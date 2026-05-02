@@ -17,7 +17,9 @@
     --font-body:'Exo 2',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+  input[type=number]{-moz-appearance:textfield;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;font-size:16px;}
 
   /* LOGIN */
   .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 30% 20%,rgba(0,200,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,107,53,0.06) 0%,transparent 60%);}
@@ -84,10 +86,10 @@
   .field-row.cols-2{grid-template-columns:1fr 1fr;}
   .field-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
   .field{display:flex;flex-direction:column;gap:3px;}
-  .field label{font-family:var(--font-mono);font-size:0.61rem;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
-  .field input[type="number"],.field input[type="text"]{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:0.88rem;padding:7px 8px;outline:none;width:100%;transition:border-color 0.2s;}
+  .field label{font-family:var(--font-mono);font-size:0.72rem;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
+  .field input[type="number"],.field input[type="text"]{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:1rem;padding:9px 10px;outline:none;width:100%;transition:border-color 0.2s;}
   .field input:focus{border-color:var(--accent);}
-  .field textarea{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:0.84rem;padding:7px 9px;outline:none;width:100%;resize:vertical;min-height:62px;transition:border-color 0.2s;}
+  .field textarea{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:0.95rem;padding:9px 10px;outline:none;width:100%;resize:vertical;min-height:70px;transition:border-color 0.2s;}
   .field textarea:focus{border-color:var(--accent);}
 
   .estado-group{display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
@@ -175,7 +177,7 @@
 
 <!-- LOGIN -->
 <div class="login-screen" id="login-screen">
-  <div class="login-logo">⚡ REGISTRO</div>
+  <div class="login-logo">🛢 OilLog</div>
   <div class="login-sub">POZOS DE CAPTACIÓN</div>
   <div class="login-card">
     <h2>INGRESAR</h2>
@@ -195,7 +197,7 @@
 <!-- APP -->
 <div class="app-screen" id="app-screen">
   <div class="app-header">
-    <h1>⚡ <span>Registro</span> Plantas</h1>
+    <h1>🛢 <span>Oil</span>Log</h1>
     <div class="header-right">
       <div class="header-user" id="header-user">—</div>
       <div style="display:flex;gap:6px;align-items:center">
@@ -222,7 +224,7 @@
     </div>
 
     <div class="meta-card">
-      <div class="field-group"><label>Fecha</label><input type="date" id="meta-fecha"></div>
+      <div class="field-group"><label>Fecha</label><input type="text" id="meta-fecha" readonly style="cursor:default;opacity:0.8;"></div>
       <div class="field-group"><label>Recorredor</label><input type="text" id="meta-recorredor" placeholder="Nombre..." readonly></div>
     </div>
 
@@ -761,7 +763,11 @@ onAuthStateChanged(auth, user => {
     const nombre = recorredores[user.email] || user.email;
     document.getElementById('header-user').textContent = '👤 ' + nombre;
     document.getElementById('meta-recorredor').value = nombre;
-    document.getElementById('meta-fecha').value = new Date().toISOString().split('T')[0];
+    const now2 = new Date();
+    const dd = String(now2.getDate()).padStart(2,'0');
+    const mm = String(now2.getMonth()+1).padStart(2,'0');
+    const yyyy = now2.getFullYear();
+    document.getElementById('meta-fecha').value = `${dd}/${mm}/${yyyy}`;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
   } else {
