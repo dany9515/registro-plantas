@@ -160,6 +160,29 @@
   .edit-btn{font-family:var(--font-mono);font-size:0.65rem;color:var(--yellow);background:none;border:1px solid var(--yellow);border-radius:4px;padding:2px 8px;cursor:pointer;margin-top:6px;}
   .no-registros{text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:0.82rem;padding:28px;}
 
+  /* ACORDEON HISTORIAL */
+  .reg-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+  .reg-header{padding:13px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .reg-header:active{background:rgba(0,200,255,0.05);}
+  .reg-header-left{display:flex;flex-direction:column;gap:4px;}
+  .reg-meta{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);}
+  .reg-vuelta{font-family:var(--font-mono);font-size:0.78rem;color:var(--yellow);}
+  .reg-arrow{font-size:1.1rem;color:var(--muted);transition:transform 0.2s;flex-shrink:0;}
+  .reg-arrow.open{transform:rotate(180deg);}
+  .reg-body{display:none;border-top:1px solid var(--border);}
+  .reg-body.show{display:block;}
+  .reg-seccion{padding:10px 14px;border-bottom:1px solid rgba(42,58,85,0.3);}
+  .reg-seccion:last-child{border-bottom:none;}
+  .reg-seccion-title{font-family:var(--font-head);font-size:0.82rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .reg-campo{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(42,58,85,0.2);}
+  .reg-campo:last-child{border-bottom:none;}
+  .reg-campo-nombre{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);}
+  .reg-campo-valor{font-family:var(--font-mono);font-size:0.75rem;color:var(--text);text-align:right;max-width:55%;}
+  .reg-novedades{background:rgba(0,200,255,0.06);border-radius:6px;padding:8px 10px;font-size:0.9rem;color:var(--text);line-height:1.5;}
+  .reg-variacion{background:rgba(0,230,118,0.1);border-radius:6px;padding:6px 10px;font-family:var(--font-mono);font-size:0.78rem;color:var(--green);margin:8px 14px 0;}
+  .reg-editado{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);}
+  .reg-edit-btn{font-family:var(--font-mono);font-size:0.72rem;color:var(--yellow);background:none;border:1px solid var(--yellow);border-radius:4px;padding:4px 10px;cursor:pointer;margin:8px 14px;display:inline-block;}
+
   .loading-overlay{position:fixed;inset:0;background:rgba(10,14,23,0.95);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
   .loading-overlay.hidden{display:none;}
   .spinner{width:42px;height:42px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -809,6 +832,9 @@ onAuthStateChanged(auth, user => {
     document.getElementById('meta-fecha').value = `${dd}/${mm}/${yyyy}`;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
+    // Mostrar colchon por defecto (turno mañana)
+    document.getElementById('colchon-23t').style.display = 'block';
+    document.getElementById('colchon-ec19').style.display = 'block';
     // Precargar últimos niveles
     ['23T','PPA','17T','ED1'].forEach(p => cargarUltimoNivel(p));
   } else {
@@ -1088,7 +1114,61 @@ window.guardarPlanta = async function(planta) {
   btn.disabled=false; btn.textContent=`💾 GUARDAR PLANTA ${planta}`;
 };
 
-// HISTORIAL
+// SECCIONES POR PLANTA PARA HISTORIAL
+const SECCIONES = {
+  '23T':[
+    {titulo:'🌅 Medición Mañana', campos:['Colchón TK Cortador']},
+    {titulo:'💉 Inyección', campos:['Presión Inyección','BJ1 Estado','BJ1 AMP','BJ1 Contra Presión','BJ2 Estado','BJ2 AMP','BJ2 Contra Presión']},
+    {titulo:'🔄 Transferencia', campos:['BBA1 Estado','BBA1 AMP','BBA2 Estado','BBA2 AMP','Caudal a 17T','Presión Línea Transf.','Envío a PPA','Presión Colectora KSB']},
+    {titulo:'📦 Despacho Stork', campos:['Stork 1','Stork 2','Stork 3','Nivel TK Despacho']},
+    {titulo:'🛢 Tanques', campos:['TK Cortador Nivel Seteo','TK Cortador Nivel Total','TK Inyector','Presión Aire']},
+    {titulo:'⚙️ Neumáticas', campos:['Neumática PPA','Neumática 17T/ED','Neumática Entre TK']},
+    {titulo:'🔵 Piletas', campos:['Pileta BJ','Pileta Stork','Pileta KSB']},
+    {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Bactericida 320(2) Nivel','Bactericida 320(2) Dial']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+  '17T':[
+    {titulo:'💉 Inyección', campos:['Presión Inyección','B.Jackson Estado','B.Jackson AMP','B.Jackson Contra Presión','Quintuplex Estado','Quintuplex AMP']},
+    {titulo:'🛢 Tanque', campos:['Nivel TK','Caudal Ingreso','Presión Gas']},
+    {titulo:'⚙️ Neumáticas', campos:['Neumática Ingreso TK','Neumática Recirculación','Neumática Contra Presión']},
+    {titulo:'🔵 Piletas', campos:['Pileta General']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+  'PPA':[
+    {titulo:'💉 Inyección', campos:['Presión Inyección','Presión Aire','SIAM1 Estado','SIAM1 AMP','SIAM2 Estado','SIAM2 AMP','SIAM3 Estado','SIAM3 AMP','BJ1 Estado','BJ1 AMP','BJ1 Contra Presión']},
+    {titulo:'🛢 Tanque', campos:['Nivel TK','Depósito Aceite']},
+    {titulo:'🔵 Piletas', campos:['Pileta BJ','Pileta SIAM']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+  'ED1':[
+    {titulo:'💉 Inyección', campos:['Presión Inyección','Presión Ingreso','Presión Compresor','SIAM1 Estado','SIAM1 AMP','SIAM2 Estado','SIAM2 AMP','SIAM3 Estado','SIAM3 AMP','SIAM4 Estado','SIAM4 AMP']},
+    {titulo:'🛢 Tanque', campos:['Nivel TK','Cuba Aceite']},
+    {titulo:'⚙️ Neumáticas', campos:['Neumática Recirculación','Neumática Ingreso TK']},
+    {titulo:'🔵 Piletas', campos:['Pileta General']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+  'EC19':[
+    {titulo:'🌅 Medición Mañana', campos:['Colchón TK Cortador']},
+    {titulo:'💉 Inyección', campos:['Presión Inyección','SIAM1 Estado','SIAM1 AMP','SIAM2 Estado','SIAM2 AMP','SIAM3 Estado','SIAM3 AMP','SIAM4 Estado','SIAM4 AMP']},
+    {titulo:'📦 Despacho Stork', campos:['Stork1 Estado','Stork1 AMP','Stork2 Estado','Stork2 AMP']},
+    {titulo:'🔮 Micro Motion', campos:['Micro Motion','MM Caudal','MM Presión Oleoducto']},
+    {titulo:'🛢 Tanques', campos:['Nivel Total TK','Interfaz','Colchón Petróleo','TK Despacho','Depósito Aceite']},
+    {titulo:'⚙️ Neumáticas', campos:['Neumática Recirculación Despacho','Neumática Recirculación Inyección']},
+    {titulo:'🔵 Piletas', campos:['Pileta SIAM','Pileta Stork']},
+    {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Bactericida 320(2) Nivel','Bactericida 320(2) Dial']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+  'AGUADA':[
+    {titulo:'📊 Datos', campos:['Caudal Salida','AMP Bomba KSB','Presión Impulsión']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+  'O87':[
+    {titulo:'📊 Datos', campos:['Caudal Actual','Acumulado']},
+    {titulo:'📝 Novedades', campos:['Novedades']},
+  ],
+};
+
+// HISTORIAL ACORDEÓN
 window.verHistorial = async function(planta) {
   document.getElementById('modal-title').textContent='Historial — '+planta;
   document.getElementById('modal-body').innerHTML='<div class="no-registros">Cargando...</div>';
@@ -1099,56 +1179,62 @@ window.verHistorial = async function(planta) {
     if(snap.empty) { document.getElementById('modal-body').innerHTML='<div class="no-registros">Sin registros aún.</div>'; return; }
     const currentUser = auth.currentUser?.email||'';
     const ahora = Date.now();
-    const docs = snap.docs.map(d => d.data());
+    const docs = snap.docs;
 
-    // Calcular variación de nivel entre registros consecutivos
-    const nivelCampos = {
-      '23T': 'TK Inyector',
-      'PPA': 'Nivel TK',
-      '17T': 'Nivel TK',
-      'ED1': 'Nivel TK'
-    };
-
-    // docs ya vienen ordenados de más nuevo a más viejo
-    // Para calcular variación comparamos cada doc con el siguiente (más viejo)
+    // Calcular variaciones de nivel
     const variaciones = {};
-    const campoNivel = nivelCampos[planta];
+    const campoNivel = {'23T':'TK Inyector','PPA':'Nivel TK','17T':'Nivel TK','ED1':'Nivel TK'}[planta];
     if(campoNivel) {
       for(let i=0; i<docs.length-1; i++) {
-        const curr = docs[i];   // más reciente
-        const prev = docs[i+1]; // más viejo
-        const nivelCurr = parseFloat(curr.datos?.[campoNivel]);
-        const nivelPrev = parseFloat(prev.datos?.[campoNivel]);
-        if(isNaN(nivelCurr)||isNaN(nivelPrev)) continue;
-        // calcular diferencia de tiempo usando timestamp
-        const tsCurr = curr.timestamp?.toMillis ? curr.timestamp.toMillis() : 0;
-        const tsPrev = prev.timestamp?.toMillis ? prev.timestamp.toMillis() : 0;
-        if(!tsCurr||!tsPrev||tsCurr===tsPrev) continue;
-        const diffMin = (tsCurr - tsPrev) / 60000;
-        if(diffMin <= 0) continue;
-        const diffCm = (nivelCurr - nivelPrev) * 100;
-        const cmPorHora = (diffCm / diffMin * 60).toFixed(1);
-        const flecha = diffCm > 0 ? '⬆️' : diffCm < 0 ? '⬇️' : '➡️';
-        const docId = snap.docs[i].id;
-        variaciones[docId] = `${flecha} ${Math.abs(cmPorHora)} cm/hr (vs registro anterior — ${prev.hora||'—'}hs)`;
+        const curr = docs[i].data(), prev = docs[i+1].data();
+        const n1 = parseFloat(curr.datos?.[campoNivel]), n2 = parseFloat(prev.datos?.[campoNivel]);
+        if(isNaN(n1)||isNaN(n2)) continue;
+        const ts1 = curr.timestamp?.toMillis?curr.timestamp.toMillis():0;
+        const ts2 = prev.timestamp?.toMillis?prev.timestamp.toMillis():0;
+        if(!ts1||!ts2||ts1===ts2) continue;
+        const diffMin = (ts1-ts2)/60000;
+        const horas = Math.round(diffMin/60);
+        if(horas<=0) continue;
+        const diffCm = (n1-n2)*100;
+        const cmH = (diffCm/horas).toFixed(1);
+        const flecha = diffCm>0?'⬆️':diffCm<0?'⬇️':'➡️';
+        variaciones[docs[i].id] = `${flecha} ${Math.abs(cmH)} cm/hr (en ${horas}hs)`;
       }
     }
 
-    document.getElementById('modal-body').innerHTML = snap.docs.map(docSnap => {
+    const secciones = SECCIONES[planta]||[];
+
+    document.getElementById('modal-body').innerHTML = docs.map((docSnap,idx) => {
       const r = docSnap.data();
-      const ts = r.timestamp?.toMillis ? r.timestamp.toMillis() : 0;
-      const puedeEditar = r.userEmail===currentUser && (ahora-ts) < 30*60*1000;
-      const campos = Object.entries(r.datos||{}).filter(([k,v])=>v&&v!=='—')
-        .map(([k,v])=>`<div class="campo"><span class="campo-nombre">${k}</span><span class="campo-valor">${v}</span></div>`).join('');
-      const editadoLabel = r.editado ? '<span style="color:var(--muted);font-size:0.65rem"> ✏️ editado</span>' : '';
-      const varKey = docSnap.id;
-      const variacion = variaciones[varKey] ? `<div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--green);margin-bottom:6px;padding:4px 8px;background:rgba(0,230,118,0.1);border-radius:4px;">📊 Variación nivel: ${variaciones[varKey]}</div>` : '';
-      return `<div class="registro-card">
-        <div class="registro-meta">📅 ${r.fecha} | 🌙 ${r.turno} | 👤 ${r.recorredor}${editadoLabel}</div>
-        <div class="registro-vuelta">🔄 Vuelta ${r.vuelta||'—'} &nbsp; ⏱ ${r.hora||'—'}hs</div>
-        ${variacion}
-        ${campos||'(sin datos)'}
-        ${puedeEditar ? `<button class="edit-btn" onclick="editarRegistro('${docSnap.id}','${planta}')">✏️ Editar</button>` : ''}
+      const ts = r.timestamp?.toMillis?r.timestamp.toMillis():0;
+      const puedeEditar = r.userEmail===currentUser && (ahora-ts)<30*60*1000;
+      const editadoLabel = r.editado ? ' <span class="reg-editado">✏️ editado</span>' : '';
+      const varHtml = variaciones[docSnap.id] ? `<div class="reg-variacion">📊 ${variaciones[docSnap.id]}</div>` : '';
+
+      const secHtml = secciones.map(sec => {
+        const camposHtml = sec.campos.filter(c => r.datos?.[c] && r.datos[c]!=='—').map(c => {
+          if(c==='Novedades') return `<div class="reg-novedades">${r.datos[c]}</div>`;
+          return `<div class="reg-campo"><span class="reg-campo-nombre">${c}</span><span class="reg-campo-valor">${r.datos[c]}</span></div>`;
+        }).join('');
+        if(!camposHtml) return '';
+        return `<div class="reg-seccion"><div class="reg-seccion-title">${sec.titulo}</div>${camposHtml}</div>`;
+      }).join('');
+
+      const editBtn = puedeEditar ? `<button class="reg-edit-btn" onclick="editarRegistro('${docSnap.id}','${planta}')">✏️ Editar registro</button>` : '';
+
+      return `<div class="reg-card">
+        <div class="reg-header" onclick="toggleAcordeon(this)">
+          <div class="reg-header-left">
+            <div class="reg-meta">📅 ${r.fecha} | ${r.turno} | 👤 ${r.recorredor}${editadoLabel}</div>
+            <div class="reg-vuelta">🔄 Vuelta ${r.vuelta||'—'} &nbsp;⏱ ${r.hora||'—'}hs</div>
+          </div>
+          <div class="reg-arrow">▼</div>
+        </div>
+        <div class="reg-body">
+          ${varHtml}
+          ${secHtml}
+          ${editBtn}
+        </div>
       </div>`;
     }).join('');
   } catch(e) {
@@ -1157,22 +1243,42 @@ window.verHistorial = async function(planta) {
   }
 };
 
-// EDITAR REGISTRO
-window.editarRegistro = async function(docId, planta) {
-  const nuevaNovedad = prompt('Editá las novedades de este registro:');
-  if(nuevaNovedad === null) return;
+window.toggleAcordeon = function(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.reg-arrow');
+  const isOpen = body.classList.contains('show');
+  body.classList.toggle('show', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+};
+
+// EDITAR REGISTRO — modal con todos los campos
+let editDocId = '', editPlanta = '', editDatos = {};
+window.editarRegistro = function(docId, planta) {
+  editDocId = docId; editPlanta = planta;
+  // Buscar el registro en el DOM actual
+  const snap_docs = document.querySelectorAll('.reg-card');
+  // Encontrar datos del registro desde el historial ya cargado
+  // Abrimos un prompt simple para campos clave — mejora futura: modal completo
+  const campo = prompt('¿Qué campo querés editar?\n\nEscribí el nombre exacto del campo (ej: Novedades, BJ1 AMP, Presión Inyección):');
+  if(!campo) return;
+  const valor = prompt(`Nuevo valor para "${campo}":`);
+  if(valor===null) return;
+  guardarEdicion(docId, planta, campo, valor);
+};
+
+async function guardarEdicion(docId, planta, campo, valor) {
   try {
-    await updateDoc(doc(db,'registros',docId), {
-      'datos.Novedades': nuevaNovedad||'—',
-      editado: true,
-      editadoEn: serverTimestamp()
-    });
-    showToast('✔ Registro editado', false);
+    const update = {};
+    update[`datos.${campo}`] = valor;
+    update['editado'] = true;
+    update['editadoEn'] = serverTimestamp();
+    await updateDoc(doc(db,'registros',docId), update);
+    showToast('✔ Campo editado', false);
     window.verHistorial(planta);
   } catch(e) {
     showToast('❌ Error al editar', true);
   }
-};
+}
 
 window.cerrarModal = function() { document.getElementById('modal').classList.remove('show'); };
 document.getElementById('modal').addEventListener('click', function(e) { if(e.target===this) window.cerrarModal(); });
