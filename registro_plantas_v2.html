@@ -128,10 +128,15 @@
   .neumatica-row .estado-group{width:130px;flex-shrink:0;}
 
   .divider{height:1px;background:var(--border);margin:9px 0;}
-  .quim-header{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;}
+  .quim-header{display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr;gap:8px;margin-bottom:4px;}
   .quim-header span{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);text-transform:uppercase;}
-  .quim-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:5px;align-items:center;}
+  .quim-row{display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr;gap:8px;margin-bottom:5px;align-items:center;}
   .quim-name{font-size:0.88rem;color:var(--text);}
+
+  /* AUTOCOMPLETAR */
+  .autocomplete-btn{width:100%;padding:9px;background:transparent;border:1px dashed var(--accent);border-radius:7px;color:var(--accent);font-family:var(--font-head);font-size:0.85rem;font-weight:600;letter-spacing:1px;cursor:pointer;margin-top:8px;transition:all 0.2s;}
+  .autocomplete-btn:hover{background:rgba(0,200,255,0.08);}
+  .autocomplete-btn:active{background:rgba(0,200,255,0.15);}
 
   .save-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent2),#e55a2b);border:none;border-radius:10px;color:#fff;font-family:var(--font-head);font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:7px;transition:all 0.2s;box-shadow:0 4px 18px rgba(255,107,53,0.3);}
   .save-btn:hover{transform:translateY(-1px);}
@@ -293,6 +298,7 @@
             </div>
             <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="23t-bj2-contra" step="0.1" placeholder="0.0"></div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('23T','iny')">📋 Autocompletar</button>
         </div>
       </div>
 
@@ -313,6 +319,7 @@
               <div class="field"><label>AMP</label><input type="number" id="23t-bba2-amp" placeholder="0"></div>
             </div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('23T','transf')">📋 Autocompletar</button>
           <div class="field-row cols-2">
             <div class="field"><label>Caudal a 17T (m³/hs)</label><input type="number" id="23t-caudal17t" step="0.1" placeholder="0.0"></div>
             <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="23t-presl-transf" step="0.1" placeholder="0.0"></div>
@@ -332,6 +339,7 @@
             <div class="field"><label>Stork N°2</label><div class="estado-group vert" id="23t-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>Stork N°3</label><div class="estado-group vert" id="23t-stork3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('23T','stork')">📋 Autocompletar</button>
           <div class="field-row cols-2" style="margin-top:8px">
             <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="23t-stork-pres" step="0.1" placeholder="0.0"></div>
             <div class="field"><label>Nivel TK Despacho (m)</label><input type="number" id="23t-nivel-despacho" step="0.01" placeholder="0.00"></div>
@@ -364,6 +372,7 @@
           <div class="neumatica-row"><span class="neumatica-name">Transferencia a PPA</span><div class="estado-group" id="23t-neum-ppa"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           <div class="neumatica-row"><span class="neumatica-name">Transferencia a 17T y ED</span><div class="estado-group" id="23t-neum-17t"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           <div class="neumatica-row"><span class="neumatica-name">Entre TK</span><div class="estado-group" id="23t-neum-tk"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('23T','neum')">📋 Autocompletar</button>
         </div>
       </div>
 
@@ -373,13 +382,14 @@
           <div class="pileta-row"><span class="pileta-name">Pileta Bomba BJ</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Pileta Stork</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Pileta KSB</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('23T','pil')">📋 Autocompletar</button>
         </div>
       </div>
 
       <div class="section">
         <div class="section-header"><div class="dot" style="background:#34d399"></div><h3>Químicos 23T</h3></div>
         <div class="section-body">
-          <div class="quim-header"><span>Químico</span><span>Nivel (cm)</span><span>Dial Bomba</span></div>
+          <div class="quim-header"><span>Químico</span><span>Nivel cm</span><span>Dial</span></div>
           <div class="quim-row"><span class="quim-name">Desemulsionante</span><input type="number" id="23t-q1-nivel" placeholder="cm"><input type="number" id="23t-q1-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="23t-q2-nivel" placeholder="cm"><input type="number" id="23t-q2-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="23t-q3-nivel" placeholder="cm"><input type="number" id="23t-q3-dial" step="0.1" placeholder="dial"></div>
@@ -416,6 +426,7 @@
               <div class="field"><label>AMP</label><input type="number" id="17t-quint-amp" placeholder="0"></div>
             </div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('17T','iny')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
@@ -438,12 +449,14 @@
           <div class="neumatica-row"><span class="neumatica-name">Ingreso al Tanque</span><div class="estado-group" id="17t-neum-ing"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           <div class="neumatica-row"><span class="neumatica-name">Recirculación General</span><div class="estado-group" id="17t-neum-recir"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           <div class="neumatica-row"><span class="neumatica-name">Contra Presión BBA BJ</span><div class="estado-group" id="17t-neum-contra"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('17T','neum')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
         <div class="section-header"><div class="dot" style="background:#60a5fa"></div><h3>Piletas</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Pileta General</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('17T','pil')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
@@ -493,6 +506,7 @@
             </div>
             <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ppa-bj1-contra" step="0.1" placeholder="0.0"></div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('PPA','iny')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
@@ -513,6 +527,7 @@
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Pileta Bomba BJ</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Pileta Bomba SIAM</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('PPA','pil')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
@@ -562,6 +577,7 @@
               <div class="field"><label>AMP</label><input type="number" id="ed1-siam4-amp" placeholder="0"></div>
             </div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('ED1','iny')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
@@ -582,12 +598,14 @@
         <div class="section-body">
           <div class="neumatica-row"><span class="neumatica-name">Recirculación General</span><div class="estado-group" id="ed1-neum-recir"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           <div class="neumatica-row"><span class="neumatica-name">Ingreso al Tanque</span><div class="estado-group" id="ed1-neum-ing"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('ED1','neum')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
         <div class="section-header"><div class="dot" style="background:#60a5fa"></div><h3>Piletas</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Pileta General</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('ED1','pil')">📋 Autocompletar</button>
         </div>
       </div>
       <div class="section">
@@ -630,6 +648,7 @@
             <div class="field"><label>SIAM N°4 — Estado</label><div class="estado-group" id="ec19-siam4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-siam4-amp" placeholder="0"></div>
           </div>
+          <button class="autocomplete-btn" onclick="autocompletar('EC19','iny')">📋 Autocompletar</button>
         </div>
       </div>
 
@@ -645,6 +664,7 @@
             <div class="field"><label>AMP</label><input type="number" id="ec19-stork2-amp" placeholder="0"></div>
           </div>
           <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="ec19-stork-pres" step="0.1" placeholder="0.0"></div>
+          <button class="autocomplete-btn" onclick="autocompletar('EC19','stork')">📋 Autocompletar</button>
         </div>
       </div>
 
@@ -687,6 +707,7 @@
         <div class="section-body">
           <div class="neumatica-row"><span class="neumatica-name">Recirculación TK Despacho</span><div class="estado-group" id="ec19-neum-despacho"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           <div class="neumatica-row"><span class="neumatica-name">Recirculación Inyección</span><div class="estado-group" id="ec19-neum-iny"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('EC19','neum')">📋 Autocompletar</button>
         </div>
       </div>
 
@@ -695,13 +716,14 @@
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Pileta SIAM</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Pileta Stork</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Llena</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No llena</button></div></div>
+          <button class="autocomplete-btn" onclick="autocompletar('EC19','pil')">📋 Autocompletar</button>
         </div>
       </div>
 
       <div class="section">
         <div class="section-header"><div class="dot" style="background:#34d399"></div><h3>Químicos EC19</h3></div>
         <div class="section-body">
-          <div class="quim-header"><span>Químico</span><span>Nivel (cm)</span><span>Dial Bomba</span></div>
+          <div class="quim-header"><span>Químico</span><span>Nivel cm</span><span>Dial</span></div>
           <div class="quim-row"><span class="quim-name">Desemulsionante</span><input type="number" id="ec19-q1-nivel" placeholder="cm"><input type="number" id="ec19-q1-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="ec19-q2-nivel" placeholder="cm"><input type="number" id="ec19-q2-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="ec19-q3-nivel" placeholder="cm"><input type="number" id="ec19-q3-dial" step="0.1" placeholder="dial"></div>
@@ -837,6 +859,7 @@ onAuthStateChanged(auth, user => {
     document.getElementById('colchon-ec19').style.display = 'block';
     // Precargar últimos niveles
     ['23T','PPA','17T','ED1'].forEach(p => cargarUltimoNivel(p));
+    cargarUltimoRegistro();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
@@ -985,9 +1008,11 @@ window.setMicromotion = function(tipo) {
 function getEstado(groupId) {
   const g = document.getElementById(groupId);
   if(!g) return '—';
-  const a = g.querySelector('.es,.fs');
+  const a = g.querySelector('.es,.er,.fs');
   if(!a) return '—';
-  return a.classList.contains('es') ? 'En Servicio' : 'Fuera de Servicio';
+  if(a.classList.contains('es')) return 'En Servicio';
+  if(a.classList.contains('er')) return 'En Reserva';
+  return 'Fuera de Servicio';
 }
 
 function getPileta(panelId, nombre) {
@@ -1005,6 +1030,78 @@ function getPileta(panelId, nombre) {
 }
 
 function getVal(id) { const el = document.getElementById(id); return el ? (el.value||'—') : '—'; }
+
+// SETTERS PARA AUTOCOMPLETAR
+function setEstado(groupId, val) {
+  const g = document.getElementById(groupId);
+  if(!g || val==='—' || !val) return;
+  g.querySelectorAll('.estado-btn').forEach(b => b.classList.remove('es','er','fs'));
+  const btns = g.querySelectorAll('.estado-btn');
+  for(const b of btns) {
+    const txt = b.textContent.trim();
+    if(val==='En Servicio' && txt==='ES') { b.classList.add('es'); break; }
+    if(val==='En Reserva' && txt==='ER') { b.classList.add('er'); break; }
+    if(val==='Fuera de Servicio' && txt==='FS') { b.classList.add('fs'); break; }
+  }
+}
+
+function setPileta(panelId, nombre, val) {
+  const panel = document.getElementById(panelId);
+  if(!panel || val==='—' || !val) return;
+  for(const row of panel.querySelectorAll('.pileta-row')) {
+    if(row.querySelector('.pileta-name').textContent.trim()===nombre) {
+      row.querySelectorAll('.pileta-btn').forEach(b => b.classList.remove('llena','vacia'));
+      const btns = row.querySelectorAll('.pileta-btn');
+      if(val==='Llena' && btns[0]) btns[0].classList.add('llena');
+      else if(val==='No llena' && btns[1]) btns[1].classList.add('vacia');
+    }
+  }
+}
+
+// CACHE ÚLTIMO REGISTRO POR PLANTA
+let ultimoRegistroPorPlanta = {};
+async function cargarUltimoRegistro() {
+  const plantas = ['23T','17T','PPA','ED1','EC19','AGUADA','O87'];
+  for(const planta of plantas) {
+    try {
+      const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
+      const snap = await getDocs(q);
+      if(!snap.empty) ultimoRegistroPorPlanta[planta] = snap.docs[0].data();
+    } catch(e) {}
+  }
+}
+
+// AUTOCOMPLETAR
+window.autocompletar = function(planta, seccion) {
+  const ultimo = ultimoRegistroPorPlanta[planta];
+  if(!ultimo) { showToast('Sin registro anterior', true); return; }
+  const d = ultimo.datos || {};
+
+  if(planta==='23T') {
+    if(seccion==='iny') { setEstado('23t-bj1-est', d['BJ1 Estado']); setEstado('23t-bj2-est', d['BJ2 Estado']); }
+    else if(seccion==='transf') { setEstado('23t-bba1-est', d['BBA1 Estado']); setEstado('23t-bba2-est', d['BBA2 Estado']); }
+    else if(seccion==='stork') { setEstado('23t-stork1-est', d['Stork 1']); setEstado('23t-stork2-est', d['Stork 2']); setEstado('23t-stork3-est', d['Stork 3']); }
+    else if(seccion==='neum') { setEstado('23t-neum-ppa', d['Neumática PPA']); setEstado('23t-neum-17t', d['Neumática 17T/ED']); setEstado('23t-neum-tk', d['Neumática Entre TK']); }
+    else if(seccion==='pil') { setPileta('panel-23t','Pileta Bomba BJ', d['Pileta BJ']); setPileta('panel-23t','Pileta Stork', d['Pileta Stork']); setPileta('panel-23t','Pileta KSB', d['Pileta KSB']); }
+  } else if(planta==='17T') {
+    if(seccion==='iny') { setEstado('17t-bj-est', d['B.Jackson Estado']); setEstado('17t-quint-est', d['Quintuplex Estado']); }
+    else if(seccion==='neum') { setEstado('17t-neum-ing', d['Neumática Ingreso TK']); setEstado('17t-neum-recir', d['Neumática Recirculación']); setEstado('17t-neum-contra', d['Neumática Contra Presión']); }
+    else if(seccion==='pil') { setPileta('panel-17t','Pileta General', d['Pileta General']); }
+  } else if(planta==='PPA') {
+    if(seccion==='iny') { setEstado('ppa-siam1-est', d['SIAM1 Estado']); setEstado('ppa-siam2-est', d['SIAM2 Estado']); setEstado('ppa-siam3-est', d['SIAM3 Estado']); setEstado('ppa-bj1-est', d['BJ1 Estado']); }
+    else if(seccion==='pil') { setPileta('panel-ppa','Pileta Bomba BJ', d['Pileta BJ']); setPileta('panel-ppa','Pileta Bomba SIAM', d['Pileta SIAM']); }
+  } else if(planta==='ED1') {
+    if(seccion==='iny') { setEstado('ed1-siam1-est', d['SIAM1 Estado']); setEstado('ed1-siam2-est', d['SIAM2 Estado']); setEstado('ed1-siam3-est', d['SIAM3 Estado']); setEstado('ed1-siam4-est', d['SIAM4 Estado']); }
+    else if(seccion==='neum') { setEstado('ed1-neum-recir', d['Neumática Recirculación']); setEstado('ed1-neum-ing', d['Neumática Ingreso TK']); }
+    else if(seccion==='pil') { setPileta('panel-ed1','Pileta General', d['Pileta General']); }
+  } else if(planta==='EC19') {
+    if(seccion==='iny') { setEstado('ec19-siam1-est', d['SIAM1 Estado']); setEstado('ec19-siam2-est', d['SIAM2 Estado']); setEstado('ec19-siam3-est', d['SIAM3 Estado']); setEstado('ec19-siam4-est', d['SIAM4 Estado']); }
+    else if(seccion==='stork') { setEstado('ec19-stork1-est', d['Stork1 Estado']); setEstado('ec19-stork2-est', d['Stork2 Estado']); }
+    else if(seccion==='neum') { setEstado('ec19-neum-despacho', d['Neumática Recirculación Despacho']); setEstado('ec19-neum-iny', d['Neumática Recirculación Inyección']); }
+    else if(seccion==='pil') { setPileta('panel-ec19','Pileta SIAM', d['Pileta SIAM']); setPileta('panel-ec19','Pileta Stork', d['Pileta Stork']); }
+  }
+  showToast('✔ Autocompletado', false);
+};
 
 function recolectarDatos(p) {
   const d = {};
