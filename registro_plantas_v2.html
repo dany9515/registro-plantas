@@ -29,8 +29,8 @@
   .login-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.4);}
   .login-card h2{font-family:var(--font-head);font-size:1.2rem;letter-spacing:2px;color:var(--text);margin-bottom:20px;text-align:center;}
   .login-field{margin-bottom:14px;}
-  .login-field label{display:block;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;}
-  .login-field input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-body);font-size:0.95rem;padding:10px 12px;outline:none;transition:border-color 0.2s;}
+  .login-field label{display:block;font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;}
+  .login-field input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-body);font-size:1.05rem;padding:11px 13px;outline:none;transition:border-color 0.2s;}
   .login-field input:focus{border-color:var(--accent);}
   .login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#0099cc);border:none;border-radius:8px;color:#000;font-family:var(--font-head);font-size:1.1rem;font-weight:700;letter-spacing:2px;cursor:pointer;margin-top:8px;transition:all 0.2s;}
   .login-btn:hover{transform:translateY(-1px);}
@@ -43,33 +43,33 @@
   .app-header h1{font-family:var(--font-head);font-size:1.1rem;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
   .app-header h1 span{color:var(--text);}
   .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
-  .header-user{font-family:var(--font-mono);font-size:0.68rem;color:var(--accent);}
-  .logout-btn{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);background:none;border:1px solid var(--border);border-radius:4px;padding:2px 7px;cursor:pointer;}
+  .header-user{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);}
+  .logout-btn{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);background:none;border:1px solid var(--border);border-radius:4px;padding:2px 7px;cursor:pointer;}
   .logout-btn:hover{color:var(--red);border-color:var(--red);}
-  .sync-status{font-family:var(--font-mono);font-size:0.65rem;padding:2px 7px;border-radius:10px;}
+  .sync-status{font-family:var(--font-mono);font-size:0.75rem;padding:3px 8px;border-radius:10px;}
   .sync-status.online{background:rgba(0,230,118,0.15);color:var(--green);}
   .sync-status.offline{background:rgba(255,23,68,0.15);color:var(--red);}
   .sync-status.syncing{background:rgba(0,200,255,0.15);color:var(--accent);}
 
   .container{max-width:680px;margin:0 auto;padding:12px;}
   .turno-bar{display:flex;gap:6px;margin-bottom:12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:6px;}
-  .turno-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font-family:var(--font-head);font-size:0.88rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
+  .turno-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font-family:var(--font-head);font-size:1rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
   .turno-btn.active{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 0 14px rgba(0,200,255,0.3);}
 
   /* VUELTA SELECTOR */
   .vuelta-bar{display:flex;gap:6px;margin-bottom:12px;align-items:center;}
-  .vuelta-label{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
-  .vuelta-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg2);color:var(--muted);font-family:var(--font-head);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .vuelta-label{font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+  .vuelta-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg2);color:var(--muted);font-family:var(--font-head);font-size:1.15rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;}
   .vuelta-btn.active{background:var(--yellow);color:#000;border-color:var(--yellow);box-shadow:0 0 12px rgba(255,214,0,0.3);}
 
   .meta-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .field-group label{display:block;font-family:var(--font-mono);font-size:0.63rem;color:var(--muted);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;}
-  .field-group input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;padding:7px 9px;outline:none;transition:border-color 0.2s;}
+  .field-group label{display:block;font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;}
+  .field-group input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:9px 10px;outline:none;transition:border-color 0.2s;}
   .field-group input:focus{border-color:var(--accent);}
 
   .plant-nav{display:flex;gap:5px;overflow-x:auto;margin-bottom:12px;padding-bottom:3px;scrollbar-width:none;}
   .plant-nav::-webkit-scrollbar{display:none;}
-  .plant-tab{white-space:nowrap;padding:6px 13px;border:1px solid var(--border);border-radius:20px;background:var(--bg2);color:var(--muted);font-family:var(--font-head);font-size:0.83rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+  .plant-tab{white-space:nowrap;padding:6px 13px;border:1px solid var(--border);border-radius:20px;background:var(--bg2);color:var(--muted);font-family:var(--font-head);font-size:0.95rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
   .plant-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2);box-shadow:0 0 12px rgba(255,107,53,0.3);}
   .plant-tab.saved{border-color:var(--green);color:var(--green);}
   .plant-tab.active.saved{background:var(--accent2);color:#fff;border-color:var(--accent2);}
@@ -94,7 +94,7 @@
   .field textarea:focus{border-color:var(--accent);}
 
   .estado-group{display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
-  .estado-btn{flex:1;padding:7px 3px;border:none;background:var(--bg2);color:var(--muted);font-family:var(--font-head);font-size:0.68rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
+  .estado-btn{flex:1;padding:7px 3px;border:none;background:var(--bg2);color:var(--muted);font-family:var(--font-head);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
   .estado-btn:not(:last-child){border-right:1px solid var(--border);}
   .estado-btn.es{background:rgba(0,230,118,0.18);color:var(--green);}
   .estado-btn.er{background:rgba(255,214,0,0.15);color:var(--yellow);}
@@ -120,18 +120,18 @@
   .mm-fields.show{display:block;}
 
   .bomba-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px;margin-bottom:7px;}
-  .bomba-name{font-family:var(--font-head);font-size:0.76rem;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:7px;text-transform:uppercase;}
+  .bomba-name{font-family:var(--font-head);font-size:0.88rem;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:7px;text-transform:uppercase;}
 
   .neumatica-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(42,58,85,0.5);}
   .neumatica-row:last-child{border-bottom:none;}
-  .neumatica-name{font-size:0.8rem;color:var(--text);flex:1;padding-right:8px;}
+  .neumatica-name{font-size:0.92rem;color:var(--text);flex:1;padding-right:8px;}
   .neumatica-row .estado-group{width:130px;flex-shrink:0;}
 
   .divider{height:1px;background:var(--border);margin:9px 0;}
   .quim-header{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;}
-  .quim-header span{font-family:var(--font-mono);font-size:0.61rem;color:var(--muted);text-transform:uppercase;}
+  .quim-header span{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);text-transform:uppercase;}
   .quim-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:5px;align-items:center;}
-  .quim-name{font-size:0.76rem;color:var(--text);}
+  .quim-name{font-size:0.88rem;color:var(--text);}
 
   .save-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent2),#e55a2b);border:none;border-radius:10px;color:#fff;font-family:var(--font-head);font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:7px;transition:all 0.2s;box-shadow:0 4px 18px rgba(255,107,53,0.3);}
   .save-btn:hover{transform:translateY(-1px);}
@@ -241,6 +241,15 @@
 
     <!-- ══ 23T ══ -->
     <div class="plant-panel active" id="panel-23t">
+
+      <!-- Colchon solo turno mañana -->
+      <div class="section" id="colchon-23t" style="display:none;border-color:#f59e0b;">
+        <div class="section-header"><div class="dot" style="background:#f59e0b;box-shadow:0 0 5px #f59e0b"></div><h3>Medición Mañana</h3></div>
+        <div class="section-body">
+          <div class="field"><label>Medición Colchón TK Cortador (cm)</label><input type="number" id="23t-colchon" placeholder="0"></div>
+        </div>
+      </div>
+
       <div class="section">
         <div class="section-header"><div class="dot"></div><h3>Inyección</h3></div>
         <div class="section-body">
@@ -568,6 +577,15 @@
 
     <!-- ══ EC19 ══ -->
     <div class="plant-panel" id="panel-ec19">
+
+      <!-- Colchon solo turno mañana -->
+      <div class="section" id="colchon-ec19" style="display:none;border-color:#f59e0b;">
+        <div class="section-header"><div class="dot" style="background:#f59e0b;box-shadow:0 0 5px #f59e0b"></div><h3>Medición Mañana</h3></div>
+        <div class="section-body">
+          <div class="field"><label>Medición Colchón TK Cortador (cm)</label><input type="number" id="ec19-colchon" placeholder="0"></div>
+        </div>
+      </div>
+
       <div class="section">
         <div class="section-header"><div class="dot"></div><h3>Inyección — Bombas SIAM</h3></div>
         <div class="section-body">
@@ -627,8 +645,12 @@
         <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanques</h3></div>
         <div class="section-body">
           <div class="field-row cols-2">
-            <div class="field"><label>Nivel Total TK (m)</label><input type="number" id="ec19-nivel-total" step="0.01" placeholder="0.00"></div>
-            <div class="field"><label>Nivel Agua / Interfaz (m)</label><input type="number" id="ec19-interfaz" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Nivel Total TK (m)</label><input type="number" id="ec19-nivel-total" step="0.01" placeholder="0.00" oninput="calcColchonEC19()"></div>
+            <div class="field"><label>Nivel Agua / Interfaz (m)</label><input type="number" id="ec19-interfaz" step="0.01" placeholder="0.00" oninput="calcColchonEC19()"></div>
+          </div>
+          <div class="field" style="margin-bottom:8px">
+            <label>Colchón de Petróleo (calculado)</label>
+            <div id="ec19-colchon-calc" style="background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.2);border-radius:6px;padding:10px;font-family:var(--font-mono);font-size:1rem;color:var(--accent);">— cm</div>
           </div>
           <div class="field-row cols-2">
             <div class="field"><label>TK Despacho (m)</label><input type="number" id="ec19-nivel-despacho" step="0.01" placeholder="0.00"></div>
@@ -872,6 +894,25 @@ window.setTurno = function(t, btn) {
   window.turnoActual = t;
   document.querySelectorAll('.turno-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  // Mostrar colchon solo en turno mañana
+  const show = t === 'Mañana';
+  document.getElementById('colchon-23t').style.display = show ? 'block' : 'none';
+  document.getElementById('colchon-ec19').style.display = show ? 'block' : 'none';
+};
+
+// Colchon automático EC19
+window.calcColchonEC19 = function() {
+  const total = parseFloat(document.getElementById('ec19-nivel-total').value);
+  const agua = parseFloat(document.getElementById('ec19-interfaz').value);
+  const div = document.getElementById('ec19-colchon-calc');
+  if(!isNaN(total) && !isNaN(agua)) {
+    const c = ((total - agua) * 100).toFixed(1);
+    div.textContent = c + ' cm';
+    div.style.color = parseFloat(c) > 0 ? 'var(--green)' : 'var(--red)';
+  } else {
+    div.textContent = '— cm';
+    div.style.color = 'var(--accent)';
+  }
 };
 
 // VUELTA
