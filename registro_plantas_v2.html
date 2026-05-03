@@ -128,9 +128,10 @@
   .neumatica-row .estado-group{width:130px;flex-shrink:0;}
 
   .divider{height:1px;background:var(--border);margin:9px 0;}
-  .quim-header{display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr;gap:8px;margin-bottom:4px;}
+  .quim-header{display:grid;grid-template-columns:2fr 0.6fr 0.6fr;gap:8px;margin-bottom:4px;}
   .quim-header span{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);text-transform:uppercase;}
-  .quim-row{display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr;gap:8px;margin-bottom:5px;align-items:center;}
+  .quim-row{display:grid;grid-template-columns:2fr 0.6fr 0.6fr;gap:8px;margin-bottom:5px;align-items:center;}
+  .quim-row input{padding:8px 6px !important;font-size:0.95rem !important;text-align:center;}
   .quim-name{font-size:0.88rem;color:var(--text);}
 
   /* AUTOCOMPLETAR */
@@ -992,8 +993,9 @@ window.toggleEstado = function(btn, tipo) {
 // PILETA
 window.togglePileta = function(btn, tipo) {
   const btns = btn.closest('.pileta-btns');
+  const isActive = btn.classList.contains(tipo);
   btns.querySelectorAll('.pileta-btn').forEach(b => b.classList.remove('llena','vacia'));
-  btn.classList.add(tipo);
+  if(!isActive) btn.classList.add(tipo);
 };
 
 // MICROMOTION
