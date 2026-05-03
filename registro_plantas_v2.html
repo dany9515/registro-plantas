@@ -20,7 +20,7 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   input[type=number]{-moz-appearance:textfield;}
-  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;font-size:16px;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;font-size:18px;}
 
   /* LOGIN */
   .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 30% 20%,rgba(0,200,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,107,53,0.06) 0%,transparent 60%);}
@@ -248,7 +248,7 @@
           <div class="bomba-card">
             <div class="bomba-name">BJ N°1</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bj1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bj1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="23t-bj1-amp" placeholder="0"></div>
             </div>
             <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="23t-bj1-contra" step="0.1" placeholder="0.0"></div>
@@ -256,7 +256,7 @@
           <div class="bomba-card">
             <div class="bomba-name">BJ N°2</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bj2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bj2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="23t-bj2-amp" placeholder="0"></div>
             </div>
             <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="23t-bj2-contra" step="0.1" placeholder="0.0"></div>
@@ -270,14 +270,14 @@
           <div class="bomba-card">
             <div class="bomba-name">BBA N°1</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bba1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bba1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="23t-bba1-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">BBA N°2</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bba2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="23t-bba2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="23t-bba2-amp" placeholder="0"></div>
             </div>
           </div>
@@ -296,9 +296,9 @@
         <div class="section-header"><div class="dot" style="background:var(--yellow);box-shadow:0 0 5px var(--yellow)"></div><h3>Despacho — Bombas Stork</h3></div>
         <div class="section-body">
           <div class="field-row cols-3">
-            <div class="field"><label>Stork N°1</label><div class="estado-group vert" id="23t-stork1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
-            <div class="field"><label>Stork N°2</label><div class="estado-group vert" id="23t-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
-            <div class="field"><label>Stork N°3</label><div class="estado-group vert" id="23t-stork3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°1</label><div class="estado-group vert" id="23t-stork1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°2</label><div class="estado-group vert" id="23t-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°3</label><div class="estado-group vert" id="23t-stork3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           </div>
           <div class="field-row cols-2" style="margin-top:8px">
             <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="23t-stork-pres" step="0.1" placeholder="0.0"></div>
@@ -372,7 +372,7 @@
           <div class="bomba-card">
             <div class="bomba-name">B. Jackson</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="17t-bj-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="17t-bj-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="17t-bj-amp" placeholder="0"></div>
             </div>
             <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="17t-bj-contra" step="0.1" placeholder="0.0"></div>
@@ -380,7 +380,7 @@
           <div class="bomba-card">
             <div class="bomba-name">Quintuplex</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="17t-quint-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="17t-quint-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="17t-quint-amp" placeholder="0"></div>
             </div>
           </div>
@@ -435,28 +435,28 @@
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°1</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ppa-siam1-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°2</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ppa-siam2-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°3</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ppa-siam3-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">BJ N°1</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-bj1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ppa-bj1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ppa-bj1-amp" placeholder="0"></div>
             </div>
             <div class="field"><label>Contra Presión (kg/cm²)</label><input type="number" id="ppa-bj1-contra" step="0.1" placeholder="0.0"></div>
@@ -505,28 +505,28 @@
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°1</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ed1-siam1-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°2</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ed1-siam2-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°3</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ed1-siam3-amp" placeholder="0"></div>
             </div>
           </div>
           <div class="bomba-card">
             <div class="bomba-name">SIAM N°4</div>
             <div class="field-row cols-2">
-              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+              <div class="field"><label>Estado</label><div class="estado-group" id="ed1-siam4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
               <div class="field"><label>AMP</label><input type="number" id="ed1-siam4-amp" placeholder="0"></div>
             </div>
           </div>
@@ -574,19 +574,19 @@
           <div class="field" style="margin-bottom:10px"><label>Presión Inyección (kg/cm²)</label><input type="number" id="ec19-pres-iny" step="0.1" placeholder="0.0"></div>
           <div class="divider"></div>
           <div class="field-row cols-2">
-            <div class="field"><label>SIAM N°1 — Estado</label><div class="estado-group" id="ec19-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>SIAM N°1 — Estado</label><div class="estado-group" id="ec19-siam1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-siam1-amp" placeholder="0"></div>
           </div>
           <div class="field-row cols-2">
-            <div class="field"><label>SIAM N°2 — Estado</label><div class="estado-group" id="ec19-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>SIAM N°2 — Estado</label><div class="estado-group" id="ec19-siam2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-siam2-amp" placeholder="0"></div>
           </div>
           <div class="field-row cols-2">
-            <div class="field"><label>SIAM N°3 — Estado</label><div class="estado-group" id="ec19-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>SIAM N°3 — Estado</label><div class="estado-group" id="ec19-siam3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-siam3-amp" placeholder="0"></div>
           </div>
           <div class="field-row cols-2">
-            <div class="field"><label>SIAM N°4 — Estado</label><div class="estado-group" id="ec19-siam4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>SIAM N°4 — Estado</label><div class="estado-group" id="ec19-siam4-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-siam4-amp" placeholder="0"></div>
           </div>
         </div>
@@ -596,11 +596,11 @@
         <div class="section-header"><div class="dot" style="background:var(--yellow);box-shadow:0 0 5px var(--yellow)"></div><h3>Despacho — Bombas Stork</h3></div>
         <div class="section-body">
           <div class="field-row cols-2">
-            <div class="field"><label>Stork N°1 — Estado</label><div class="estado-group" id="ec19-stork1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°1 — Estado</label><div class="estado-group" id="ec19-stork1-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-stork1-amp" placeholder="0"></div>
           </div>
           <div class="field-row cols-2">
-            <div class="field"><label>Stork N°2 — Estado</label><div class="estado-group" id="ec19-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
+            <div class="field"><label>Stork N°2 — Estado</label><div class="estado-group" id="ec19-stork2-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
             <div class="field"><label>AMP</label><input type="number" id="ec19-stork2-amp" placeholder="0"></div>
           </div>
           <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="ec19-stork-pres" step="0.1" placeholder="0.0"></div>
