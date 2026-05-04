@@ -341,10 +341,6 @@
             <div class="field"><label>Stork N°3</label><div class="estado-group vert" id="23t-stork3-est"><button class="estado-btn" onclick="toggleEstado(this,'es')">ES</button><button class="estado-btn" onclick="toggleEstado(this,'er')">ER</button><button class="estado-btn" onclick="toggleEstado(this,'fs')">FS</button></div></div>
           </div>
           <button class="autocomplete-btn" onclick="autocompletar('23T','stork')">📋 Autocompletar</button>
-          <div class="field-row cols-2" style="margin-top:8px">
-            <div class="field"><label>Presión Línea (kg/cm²)</label><input type="number" id="23t-stork-pres" step="0.1" placeholder="0.0"></div>
-            <div class="field"><label>Nivel TK Despacho (m)</label><input type="number" id="23t-nivel-despacho" step="0.01" placeholder="0.00"></div>
-          </div>
         </div>
       </div>
 
@@ -352,8 +348,12 @@
         <div class="section-header"><div class="dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div><h3>Tanques</h3></div>
         <div class="section-body">
           <div class="field-row cols-2">
-            <div class="field"><label>Nivel Seteo Neumática TK Cortador (m)</label><input type="number" id="23t-nivel-seteo" step="0.01" placeholder="0.00"></div>
-            <div class="field"><label>Nivel Total TK Cortador (m)</label><input type="number" id="23t-nivel-total" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Nivel Seteo Neumática TK Cortador (m)</label><input type="number" id="23t-nivel-seteo" step="0.01" placeholder="0.00" oninput="calcColchon23T()"></div>
+            <div class="field"><label>Nivel Total TK Cortador (m)</label><input type="number" id="23t-nivel-total" step="0.01" placeholder="0.00" oninput="calcColchon23T()"></div>
+          </div>
+          <div class="field" style="margin-bottom:8px">
+            <label>Colchón TK Cortador (calculado)</label>
+            <div id="23t-colchon-calc" style="background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.2);border-radius:6px;padding:10px;font-family:var(--font-mono);font-size:1rem;color:var(--accent);">— cm</div>
           </div>
           <div class="field-row cols-2">
             <div class="field">
@@ -395,6 +395,15 @@
           <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="23t-q2-nivel" placeholder="cm"><input type="number" id="23t-q2-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="23t-q3-nivel" placeholder="cm"><input type="number" id="23t-q3-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Bactericida 320 (2)</span><input type="number" id="23t-q4-nivel" placeholder="cm"><input type="number" id="23t-q4-dial" step="0.1" placeholder="dial"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras 23T</h3></div>
+        <div class="section-body">
+          <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+          <div class="pileta-row"><span class="pileta-name">Muestra Micro Motion</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+          <div class="pileta-row"><span class="pileta-name">Muestra Colchón</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
         </div>
       </div>
 
@@ -460,6 +469,13 @@
           <button class="autocomplete-btn" onclick="autocompletar('17T','pil')">📋 Autocompletar</button>
         </div>
       </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras 17T</h3></div>
+        <div class="section-body">
+          <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
       <div class="section">
         <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades 17T</h3></div>
         <div class="section-body"><div class="field"><textarea id="17t-novedades" placeholder="Novedades del turno..."></textarea></div></div>
@@ -531,6 +547,13 @@
           <button class="autocomplete-btn" onclick="autocompletar('PPA','pil')">📋 Autocompletar</button>
         </div>
       </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras PPA</h3></div>
+        <div class="section-body">
+          <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
       <div class="section">
         <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades PPA</h3></div>
         <div class="section-body"><div class="field"><textarea id="ppa-novedades" placeholder="Novedades del turno..."></textarea></div></div>
@@ -609,6 +632,13 @@
           <button class="autocomplete-btn" onclick="autocompletar('ED1','pil')">📋 Autocompletar</button>
         </div>
       </div>
+      <div class="section">
+        <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras ED1</h3></div>
+        <div class="section-body">
+          <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
       <div class="section">
         <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades ED1</h3></div>
         <div class="section-body"><div class="field"><textarea id="ed1-novedades" placeholder="Novedades del turno..."></textarea></div></div>
@@ -733,6 +763,15 @@
       </div>
 
       <div class="section">
+        <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras EC19</h3></div>
+        <div class="section-body">
+          <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+          <div class="pileta-row"><span class="pileta-name">Muestra Micro Motion</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+          <div class="pileta-row"><span class="pileta-name">Muestra Colchón</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
+      <div class="section">
         <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades EC19</h3></div>
         <div class="section-body"><div class="field"><textarea id="ec19-novedades" placeholder="Novedades del turno..."></textarea></div></div>
       </div>
@@ -808,6 +847,21 @@
       <div class="login-field"><label>Repetir nueva contraseña</label><input type="password" id="pass-repetir" placeholder="••••••••"></div>
       <button class="login-btn" id="btn-cambiar-pass" onclick="cambiarPassword()">CAMBIAR CONTRASEÑA</button>
       <div class="login-error" id="pass-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR REGISTRO -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>✏️ Editar Registro</h2>
+      <button class="modal-close" onclick="cerrarEdicion()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-edit-body"></div>
+    <div style="padding:14px;border-top:1px solid var(--border);display:flex;gap:10px">
+      <button class="logout-btn" style="flex:1;padding:10px;font-size:0.9rem" onclick="cerrarEdicion()">Cancelar</button>
+      <button class="login-btn" style="flex:1;padding:10px;font-size:1rem" onclick="confirmarEdicion()">💾 Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -965,6 +1019,21 @@ window.calcColchonEC19 = function() {
   }
 };
 
+// Colchon automático 23T
+window.calcColchon23T = function() {
+  const total = parseFloat(document.getElementById('23t-nivel-total').value);
+  const seteo = parseFloat(document.getElementById('23t-nivel-seteo').value);
+  const div = document.getElementById('23t-colchon-calc');
+  if(!isNaN(total) && !isNaN(seteo)) {
+    const c = ((total - seteo) * 100).toFixed(1);
+    div.textContent = c + ' cm';
+    div.style.color = parseFloat(c) > 0 ? 'var(--green)' : 'var(--red)';
+  } else {
+    div.textContent = '— cm';
+    div.style.color = 'var(--accent)';
+  }
+};
+
 // VUELTA
 window.vueltaActual = 1;
 window.setVuelta = function(n, btn) {
@@ -1025,7 +1094,7 @@ function getPileta(panelId, nombre) {
     if(row.querySelector('.pileta-name').textContent.trim() === nombre) {
       const active = row.querySelector('.llena,.vacia');
       if(!active) return '—';
-      return active.classList.contains('llena') ? 'Llena' : 'No llena';
+      return active.textContent.trim(); // Devuelve el texto exacto del botón (Llena, No llena, Sí, No)
     }
   }
   return '—';
@@ -1054,8 +1123,15 @@ function setPileta(panelId, nombre, val) {
     if(row.querySelector('.pileta-name').textContent.trim()===nombre) {
       row.querySelectorAll('.pileta-btn').forEach(b => b.classList.remove('llena','vacia'));
       const btns = row.querySelectorAll('.pileta-btn');
-      if(val==='Llena' && btns[0]) btns[0].classList.add('llena');
-      else if(val==='No llena' && btns[1]) btns[1].classList.add('vacia');
+      // Buscar el botón que coincida con el valor
+      for(const b of btns) {
+        if(b.textContent.trim() === val) {
+          // Aplicar la clase según posición (primer botón = llena, segundo = vacia)
+          if(b === btns[0]) b.classList.add('llena');
+          else b.classList.add('vacia');
+          break;
+        }
+      }
     }
   }
 }
@@ -1116,12 +1192,13 @@ function recolectarDatos(p) {
     d['Caudal a 17T']=getVal('23t-caudal17t'); d['Presión Línea Transf.']=getVal('23t-presl-transf');
     d['Envío a PPA']=getVal('23t-envio-ppa'); d['Presión Colectora KSB']=getVal('23t-pres-colect');
     d['Stork 1']=getEstado('23t-stork1-est'); d['Stork 2']=getEstado('23t-stork2-est'); d['Stork 3']=getEstado('23t-stork3-est');
-    d['Stork Presión Línea']=getVal('23t-stork-pres'); d['Nivel TK Despacho']=getVal('23t-nivel-despacho');
     d['TK Cortador Nivel Seteo']=getVal('23t-nivel-seteo'); d['TK Cortador Nivel Total']=getVal('23t-nivel-total');
+    d['Colchón TK Cortador (calc)']=document.getElementById('23t-colchon-calc').textContent;
     d['TK Inyector']=getVal('23t-tk-inyector'); d['TK Despacho']=getVal('23t-nivel-despacho2');
     d['Presión Aire']=getVal('23t-pres-aire');
     d['Neumática PPA']=getEstado('23t-neum-ppa'); d['Neumática 17T/ED']=getEstado('23t-neum-17t'); d['Neumática Entre TK']=getEstado('23t-neum-tk');
     d['Pileta BJ']=getPileta('panel-23t','Pileta Bomba BJ'); d['Pileta Stork']=getPileta('panel-23t','Pileta Stork'); d['Pileta KSB']=getPileta('panel-23t','Pileta KSB');
+    d['Muestra Agua']=getPileta('panel-23t','Muestra de Agua'); d['Muestra Micro Motion']=getPileta('panel-23t','Muestra Micro Motion'); d['Muestra Colchón']=getPileta('panel-23t','Muestra Colchón');
     d['Desemulsionante Nivel']=getVal('23t-q1-nivel'); d['Desemulsionante Dial']=getVal('23t-q1-dial');
     d['Clarificante Nivel']=getVal('23t-q2-nivel'); d['Clarificante Dial']=getVal('23t-q2-dial');
     d['Bactericida 320(1) Nivel']=getVal('23t-q3-nivel'); d['Bactericida 320(1) Dial']=getVal('23t-q3-dial');
@@ -1134,6 +1211,7 @@ function recolectarDatos(p) {
     d['Nivel TK']=getVal('17t-nivel-tk'); d['Caudal Ingreso']=getVal('17t-caudal-ingreso'); d['Presión Gas']=getVal('17t-pres-gas');
     d['Neumática Ingreso TK']=getEstado('17t-neum-ing'); d['Neumática Recirculación']=getEstado('17t-neum-recir'); d['Neumática Contra Presión']=getEstado('17t-neum-contra');
     d['Pileta General']=getPileta('panel-17t','Pileta General');
+    d['Muestra Agua']=getPileta('panel-17t','Muestra de Agua');
     d['Novedades']=getVal('17t-novedades');
   } else if(p==='PPA') {
     d['Presión Inyección']=getVal('ppa-pres-iny'); d['Presión Aire']=getVal('ppa-pres-aire');
@@ -1143,6 +1221,7 @@ function recolectarDatos(p) {
     d['BJ1 Estado']=getEstado('ppa-bj1-est'); d['BJ1 AMP']=getVal('ppa-bj1-amp'); d['BJ1 Contra Presión']=getVal('ppa-bj1-contra');
     d['Nivel TK']=getVal('ppa-nivel-tk'); d['Depósito Aceite']=getVal('ppa-aceite');
     d['Pileta BJ']=getPileta('panel-ppa','Pileta Bomba BJ'); d['Pileta SIAM']=getPileta('panel-ppa','Pileta Bomba SIAM');
+    d['Muestra Agua']=getPileta('panel-ppa','Muestra de Agua');
     d['Novedades']=getVal('ppa-novedades');
   } else if(p==='ED1') {
     d['Presión Inyección']=getVal('ed1-pres-iny'); d['Presión Ingreso']=getVal('ed1-pres-ingreso'); d['Presión Compresor']=getVal('ed1-pres-compresor');
@@ -1153,6 +1232,7 @@ function recolectarDatos(p) {
     d['Nivel TK']=getVal('ed1-nivel-tk'); d['Cuba Aceite']=getVal('ed1-aceite');
     d['Neumática Recirculación']=getEstado('ed1-neum-recir'); d['Neumática Ingreso TK']=getEstado('ed1-neum-ing');
     d['Pileta General']=getPileta('panel-ed1','Pileta General');
+    d['Muestra Agua']=getPileta('panel-ed1','Muestra de Agua');
     d['Novedades']=getVal('ed1-novedades');
   } else if(p==='EC19') {
     d['Presión Inyección']=getVal('ec19-pres-iny');
@@ -1169,6 +1249,7 @@ function recolectarDatos(p) {
     d['TK Despacho']=getVal('ec19-nivel-despacho'); d['Depósito Aceite']=getVal('ec19-aceite');
     d['Neumática Recirculación Despacho']=getEstado('ec19-neum-despacho'); d['Neumática Recirculación Inyección']=getEstado('ec19-neum-iny');
     d['Pileta SIAM']=getPileta('panel-ec19','Pileta SIAM'); d['Pileta Stork']=getPileta('panel-ec19','Pileta Stork');
+    d['Muestra Agua']=getPileta('panel-ec19','Muestra de Agua'); d['Muestra Micro Motion']=getPileta('panel-ec19','Muestra Micro Motion'); d['Muestra Colchón']=getPileta('panel-ec19','Muestra Colchón');
     d['Desemulsionante Nivel']=getVal('ec19-q1-nivel'); d['Desemulsionante Dial']=getVal('ec19-q1-dial');
     d['Clarificante Nivel']=getVal('ec19-q2-nivel'); d['Clarificante Dial']=getVal('ec19-q2-dial');
     d['Bactericida 320(1) Nivel']=getVal('ec19-q3-nivel'); d['Bactericida 320(1) Dial']=getVal('ec19-q3-dial');
@@ -1185,6 +1266,34 @@ function recolectarDatos(p) {
 }
 
 // GUARDAR
+// LIMPIAR CAMPOS DE UNA PLANTA
+function limpiarPlanta(planta) {
+  const panel = document.getElementById('panel-' + planta.toLowerCase());
+  if(!panel) return;
+  // Limpiar inputs (excepto los readonly como fecha y recorredor)
+  panel.querySelectorAll('input[type="number"], textarea').forEach(el => { el.value = ''; });
+  // Limpiar estados de bombas y neumáticas
+  panel.querySelectorAll('.estado-btn').forEach(b => b.classList.remove('es','er','fs'));
+  // Limpiar piletas
+  panel.querySelectorAll('.pileta-btn').forEach(b => b.classList.remove('llena','vacia'));
+  // Ocultar variaciones de nivel
+  panel.querySelectorAll('[id^="var-"]').forEach(d => d.style.display='none');
+  // Caso especial EC19 — micromotion y colchón calculado
+  if(planta==='EC19') {
+    window.micromotiondEstado = '';
+    document.getElementById('mm-bombeando').className = 'mm-btn';
+    document.getElementById('mm-recirculando').className = 'mm-btn';
+    document.getElementById('mm-fields-bombeando').className = 'mm-fields';
+    const colchonCalc = document.getElementById('ec19-colchon-calc');
+    if(colchonCalc) { colchonCalc.textContent = '— cm'; colchonCalc.style.color = 'var(--accent)'; }
+  }
+  // Caso especial 23T — colchón calculado
+  if(planta==='23T') {
+    const colchon23T = document.getElementById('23t-colchon-calc');
+    if(colchon23T) { colchon23T.textContent = '— cm'; colchon23T.style.color = 'var(--accent)'; }
+  }
+}
+
 window.guardarPlanta = async function(planta) {
   const btn = document.getElementById('btn-'+planta.toLowerCase());
   btn.disabled=true; btn.textContent='⏳ Guardando...';
@@ -1205,6 +1314,10 @@ window.guardarPlanta = async function(planta) {
     setSyncStatus('online','🟢 Online');
     showToast(`✔ ${planta} — Vuelta ${window.vueltaActual} (${hora})`, false);
     document.querySelectorAll('.plant-tab').forEach(t => { if(t.textContent.trim()===planta) t.classList.add('saved'); });
+    // Actualizar caches y limpiar campos
+    await cargarUltimoNivel(planta);
+    await cargarUltimoRegistro();
+    limpiarPlanta(planta);
   } catch(e) {
     setSyncStatus('offline','🔴 Error');
     showToast('❌ Error al guardar', true);
@@ -1220,9 +1333,10 @@ const SECCIONES = {
     {titulo:'💉 Inyección', campos:['Presión Inyección','BJ1 Estado','BJ1 AMP','BJ1 Contra Presión','BJ2 Estado','BJ2 AMP','BJ2 Contra Presión']},
     {titulo:'🔄 Transferencia', campos:['BBA1 Estado','BBA1 AMP','BBA2 Estado','BBA2 AMP','Caudal a 17T','Presión Línea Transf.','Envío a PPA','Presión Colectora KSB']},
     {titulo:'📦 Despacho Stork', campos:['Stork 1','Stork 2','Stork 3','Nivel TK Despacho']},
-    {titulo:'🛢 Tanques', campos:['TK Cortador Nivel Seteo','TK Cortador Nivel Total','TK Inyector','Presión Aire']},
+    {titulo:'🛢 Tanques', campos:['TK Cortador Nivel Seteo','TK Cortador Nivel Total','Colchón TK Cortador (calc)','TK Inyector','Presión Aire']},
     {titulo:'⚙️ Neumáticas', campos:['Neumática PPA','Neumática 17T/ED','Neumática Entre TK']},
     {titulo:'🔵 Piletas', campos:['Pileta BJ','Pileta Stork','Pileta KSB']},
+    {titulo:'🟡 Muestras', campos:['Muestra Agua','Muestra Micro Motion','Muestra Colchón']},
     {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Bactericida 320(2) Nivel','Bactericida 320(2) Dial']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
@@ -1231,12 +1345,14 @@ const SECCIONES = {
     {titulo:'🛢 Tanque', campos:['Nivel TK','Caudal Ingreso','Presión Gas']},
     {titulo:'⚙️ Neumáticas', campos:['Neumática Ingreso TK','Neumática Recirculación','Neumática Contra Presión']},
     {titulo:'🔵 Piletas', campos:['Pileta General']},
+    {titulo:'🟡 Muestras', campos:['Muestra Agua']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
   'PPA':[
     {titulo:'💉 Inyección', campos:['Presión Inyección','Presión Aire','SIAM1 Estado','SIAM1 AMP','SIAM2 Estado','SIAM2 AMP','SIAM3 Estado','SIAM3 AMP','BJ1 Estado','BJ1 AMP','BJ1 Contra Presión']},
     {titulo:'🛢 Tanque', campos:['Nivel TK','Depósito Aceite']},
     {titulo:'🔵 Piletas', campos:['Pileta BJ','Pileta SIAM']},
+    {titulo:'🟡 Muestras', campos:['Muestra Agua']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
   'ED1':[
@@ -1244,6 +1360,7 @@ const SECCIONES = {
     {titulo:'🛢 Tanque', campos:['Nivel TK','Cuba Aceite']},
     {titulo:'⚙️ Neumáticas', campos:['Neumática Recirculación','Neumática Ingreso TK']},
     {titulo:'🔵 Piletas', campos:['Pileta General']},
+    {titulo:'🟡 Muestras', campos:['Muestra Agua']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
   'EC19':[
@@ -1254,6 +1371,7 @@ const SECCIONES = {
     {titulo:'🛢 Tanques', campos:['Nivel Total TK','Interfaz','Colchón Petróleo','TK Despacho','Depósito Aceite']},
     {titulo:'⚙️ Neumáticas', campos:['Neumática Recirculación Despacho','Neumática Recirculación Inyección']},
     {titulo:'🔵 Piletas', campos:['Pileta SIAM','Pileta Stork']},
+    {titulo:'🟡 Muestras', campos:['Muestra Agua','Muestra Micro Motion','Muestra Colchón']},
     {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Bactericida 320(2) Nivel','Bactericida 320(2) Dial']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
@@ -1350,34 +1468,70 @@ window.toggleAcordeon = function(header) {
   arrow.classList.toggle('open', !isOpen);
 };
 
-// EDITAR REGISTRO — modal con todos los campos
-let editDocId = '', editPlanta = '', editDatos = {};
-window.editarRegistro = function(docId, planta) {
+// EDITAR REGISTRO — modal con todos los campos editables
+let editDocId = '', editPlanta = '';
+window.editarRegistro = async function(docId, planta) {
   editDocId = docId; editPlanta = planta;
-  // Buscar el registro en el DOM actual
-  const snap_docs = document.querySelectorAll('.reg-card');
-  // Encontrar datos del registro desde el historial ya cargado
-  // Abrimos un prompt simple para campos clave — mejora futura: modal completo
-  const campo = prompt('¿Qué campo querés editar?\n\nEscribí el nombre exacto del campo (ej: Novedades, BJ1 AMP, Presión Inyección):');
-  if(!campo) return;
-  const valor = prompt(`Nuevo valor para "${campo}":`);
-  if(valor===null) return;
-  guardarEdicion(docId, planta, campo, valor);
+  try {
+    // Buscar el registro completo
+    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
+    const snap = await getDocs(q);
+    let registro = null;
+    snap.docs.forEach(d => { if(d.id === docId) registro = d.data(); });
+    if(!registro) { showToast('No se encontró el registro', true); return; }
+
+    // Construir el modal con todos los campos
+    const datos = registro.datos || {};
+    const camposHtml = Object.entries(datos).map(([campo, valor]) => {
+      const idCampo = 'edit-' + campo.replace(/[^a-zA-Z0-9]/g, '_');
+      // Si es Novedades, usar textarea
+      if(campo === 'Novedades') {
+        return `<div style="margin-bottom:12px">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);margin-bottom:5px;text-transform:uppercase">${campo}</label>
+          <textarea id="${idCampo}" data-campo="${campo}" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:0.95rem;padding:10px;outline:none;min-height:70px;resize:vertical">${valor==='—'?'':valor}</textarea>
+        </div>`;
+      }
+      return `<div style="margin-bottom:10px">
+        <label style="display:block;font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase">${campo}</label>
+        <input type="text" id="${idCampo}" data-campo="${campo}" value="${valor==='—'?'':valor}" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:1rem;padding:10px;outline:none">
+      </div>`;
+    }).join('');
+
+    document.getElementById('modal-edit-body').innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);margin-bottom:14px;padding:8px;background:rgba(0,200,255,0.08);border-radius:6px">
+        📅 ${registro.fecha} | ${registro.turno} | 🔄 Vuelta ${registro.vuelta} | ⏱ ${registro.hora}hs
+      </div>
+      ${camposHtml}
+    `;
+    document.getElementById('modal-edit').classList.add('show');
+  } catch(e) {
+    showToast('Error al cargar registro', true);
+    console.error(e);
+  }
 };
 
-async function guardarEdicion(docId, planta, campo, valor) {
+window.cerrarEdicion = function() {
+  document.getElementById('modal-edit').classList.remove('show');
+};
+
+window.confirmarEdicion = async function() {
   try {
-    const update = {};
-    update[`datos.${campo}`] = valor;
-    update['editado'] = true;
-    update['editadoEn'] = serverTimestamp();
-    await updateDoc(doc(db,'registros',docId), update);
-    showToast('✔ Campo editado', false);
-    window.verHistorial(planta);
+    const inputs = document.querySelectorAll('#modal-edit-body input, #modal-edit-body textarea');
+    const update = { editado: true, editadoEn: serverTimestamp() };
+    inputs.forEach(input => {
+      const campo = input.getAttribute('data-campo');
+      const valor = input.value.trim() || '—';
+      update[`datos.${campo}`] = valor;
+    });
+    await updateDoc(doc(db,'registros',editDocId), update);
+    showToast('✔ Registro actualizado', false);
+    document.getElementById('modal-edit').classList.remove('show');
+    window.verHistorial(editPlanta);
   } catch(e) {
-    showToast('❌ Error al editar', true);
+    showToast('❌ Error al actualizar', true);
+    console.error(e);
   }
-}
+};
 
 window.cerrarModal = function() { document.getElementById('modal').classList.remove('show'); };
 document.getElementById('modal').addEventListener('click', function(e) { if(e.target===this) window.cerrarModal(); });
