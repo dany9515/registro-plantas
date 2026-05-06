@@ -821,6 +821,35 @@
   </div>
 </div>
 
+<!-- ══════ PANTALLA SUPERVISOR ══════ -->
+<div class="app-screen" id="supervisor-screen" style="display:none">
+  <div class="app-header">
+    <h1>🛢 <span>Oil</span>Log <span style="color:var(--yellow);font-size:0.85rem;letter-spacing:1px">SUPERVISOR</span></h1>
+    <div class="header-right">
+      <div class="header-user" id="sup-user">—</div>
+      <div class="header-btns">
+        <button class="logout-btn" onclick="abrirCambioPass()" style="border-color:#ffd600;color:#ffd600">🔑</button>
+        <button class="logout-btn" onclick="doLogout()">Salir</button>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="meta-card" style="grid-template-columns:1fr">
+      <div class="field-group">
+        <label>📅 Filtrar por fecha</label>
+        <select id="sup-fecha" onchange="cargarNovedadesSupervisor()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
+          <option value="hoy">Hoy</option>
+          <option value="ayer">Ayer</option>
+          <option value="semana">Última semana</option>
+          <option value="todas">Todas</option>
+        </select>
+      </div>
+    </div>
+    <div id="sup-novedades-container"></div>
+    <div class="version-footer">🛢 OilLog Supervisor v1.0</div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- MODAL HISTORIAL -->
@@ -896,9 +925,24 @@ const recorredores = {
   'marcelo.barrionuevo@registroplantas.com':'Marcelo Barrionuevo'
 };
 
+// Lista de supervisores — solo ven novedades
+const supervisores = {
+  'daniel.supervisor@registroplantas.com':'Daniel Aguilar (Supervisor)'
+};
+
 onAuthStateChanged(auth, user => {
   document.getElementById('loading').classList.add('hidden');
   if (user) {
+    // ¿Es supervisor?
+    if(supervisores[user.email]) {
+      const nombre = supervisores[user.email];
+      document.getElementById('sup-user').textContent = '👤 ' + nombre;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('supervisor-screen').style.display = 'block';
+      cargarNovedadesSupervisor();
+      return;
+    }
     const nombre = recorredores[user.email] || user.email;
     document.getElementById('header-user').textContent = '👤 ' + nombre;
     document.getElementById('meta-recorredor').value = nombre;
@@ -909,6 +953,7 @@ onAuthStateChanged(auth, user => {
     document.getElementById('meta-fecha').value = `${dd}/${mm}/${yyyy}`;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('supervisor-screen').style.display = 'none';
     // Mostrar colchon por defecto (turno mañana)
     document.getElementById('colchon-23t').style.display = 'block';
     document.getElementById('colchon-ec19').style.display = 'block';
@@ -918,6 +963,7 @@ onAuthStateChanged(auth, user => {
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('supervisor-screen').style.display = 'none';
   }
 });
 
@@ -1566,14 +1612,71 @@ window.cambiarPassword = async function() {
 
 function setSyncStatus(type, text) {
   const el = document.getElementById('sync-status');
-  el.className='sync-status '+type; el.textContent=text;
+  if(el) { el.className='sync-status '+type; el.textContent=text; }
 }
 function showToast(msg, isError=false) {
   const t = document.getElementById('toast');
   t.textContent=msg; t.className='toast'+(isError?' error':'');
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
 }
+
+// ══════ FUNCIONES SUPERVISOR ══════
+window.cargarNovedadesSupervisor = async function() {
+  const filtro = document.getElementById('sup-fecha').value;
+  const container = document.getElementById('sup-novedades-container');
+  container.innerHTML = '<div class="no-registros">Cargando novedades...</div>';
+
+  try {
+    const q = query(collection(db,'registros'), orderBy('timestamp','desc'));
+    const snap = await getDocs(q);
+    if(snap.empty) { container.innerHTML='<div class="no-registros">Sin novedades aún.</div>'; return; }
+
+    const ahora = new Date();
+    const hoyStr = String(ahora.getDate()).padStart(2,'0')+'/'+String(ahora.getMonth()+1).padStart(2,'0')+'/'+ahora.getFullYear();
+    const ayer = new Date(ahora.getTime() - 24*60*60*1000);
+    const ayerStr = String(ayer.getDate()).padStart(2,'0')+'/'+String(ayer.getMonth()+1).padStart(2,'0')+'/'+ayer.getFullYear();
+    const haceUnaSemana = ahora.getTime() - 7*24*60*60*1000;
+
+    // Filtrar y solo mostrar las que tienen novedades
+    const novedades = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => {
+        const nov = r.datos?.['Novedades'];
+        if(!nov || nov === '—' || nov.trim() === '') return false;
+        // Aplicar filtro de fecha
+        if(filtro === 'hoy') return r.fecha === hoyStr;
+        if(filtro === 'ayer') return r.fecha === ayerStr;
+        if(filtro === 'semana') {
+          const ts = r.timestamp?.toMillis ? r.timestamp.toMillis() : 0;
+          return ts >= haceUnaSemana;
+        }
+        return true; // todas
+      });
+
+    if(novedades.length === 0) {
+      container.innerHTML = '<div class="no-registros">📭 Sin novedades en el período seleccionado.</div>';
+      return;
+    }
+
+    container.innerHTML = novedades.map(r => {
+      const turnoIcon = r.turno === 'Mañana' ? '☀' : r.turno === 'Tarde' ? '🌤' : '🌙';
+      return `<div class="reg-card">
+        <div style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);">📅 ${r.fecha} — Planta ${r.planta}</div>
+            <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--yellow)">${turnoIcon} Turno ${r.turno}</div>
+          </div>
+          <div style="background:rgba(0,200,255,0.06);border-radius:6px;padding:10px 12px;font-size:0.95rem;color:var(--text);line-height:1.5">
+            📝 ${r.datos['Novedades']}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+    container.innerHTML = '<div class="no-registros">❌ Error al cargar. Intentá de nuevo.</div>';
+  }
+};
 </script>
 </body>
 </html>
-
