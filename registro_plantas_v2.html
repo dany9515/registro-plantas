@@ -23,10 +23,41 @@
   body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;font-size:18px;}
 
   /* LOGIN */
-  .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 30% 20%,rgba(0,200,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,107,53,0.06) 0%,transparent 60%);}
-  .login-logo{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--accent);letter-spacing:3px;margin-bottom:4px;}
-  .login-sub{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);letter-spacing:2px;margin-bottom:32px;}
-  .login-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.4);}
+  .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 30% 20%,rgba(0,200,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,107,53,0.06) 0%,transparent 60%);overflow:hidden;}
+  .login-logo{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--accent);letter-spacing:3px;margin-bottom:4px;animation:logoFadeIn 1.2s cubic-bezier(0.34,1.56,0.64,1) forwards;opacity:0;transform:translateY(-30px) scale(0.8);text-shadow:0 0 20px rgba(0,200,255,0.5);}
+  .login-sub{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);letter-spacing:2px;margin-bottom:32px;animation:subFadeIn 1.2s ease-out 0.4s forwards;opacity:0;}
+  .login-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.4);animation:cardSlideUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.6s forwards;opacity:0;transform:translateY(40px);}
+
+  /* Animaciones de entrada del login */
+  @keyframes logoFadeIn {
+    0% { opacity:0; transform:translateY(-30px) scale(0.8); }
+    60% { opacity:1; transform:translateY(5px) scale(1.05); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes subFadeIn {
+    0% { opacity:0; letter-spacing:8px; }
+    100% { opacity:1; letter-spacing:2px; }
+  }
+  @keyframes cardSlideUp {
+    0% { opacity:0; transform:translateY(40px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  /* Efecto de partículas/líneas decorativas en el fondo */
+  .login-screen::before {
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;bottom:0;
+    background-image:
+      linear-gradient(rgba(0,200,255,0.03) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,200,255,0.03) 1px,transparent 1px);
+    background-size:50px 50px;
+    pointer-events:none;
+    animation:gridPulse 4s ease-in-out infinite;
+  }
+  @keyframes gridPulse {
+    0%,100% { opacity:0.5; }
+    50% { opacity:1; }
+  }
   .login-card h2{font-family:var(--font-head);font-size:1.2rem;letter-spacing:2px;color:var(--text);margin-bottom:20px;text-align:center;}
   .login-field{margin-bottom:14px;}
   .login-field label{display:block;font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;}
@@ -394,7 +425,7 @@
           <div class="quim-row"><span class="quim-name">Desemulsionante</span><input type="number" id="23t-q1-nivel" placeholder="cm"><input type="number" id="23t-q1-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="23t-q2-nivel" placeholder="cm"><input type="number" id="23t-q2-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="23t-q3-nivel" placeholder="cm"><input type="number" id="23t-q3-dial" step="0.1" placeholder="dial"></div>
-          <div class="quim-row"><span class="quim-name">Bactericida 320 (2)</span><input type="number" id="23t-q4-nivel" placeholder="cm"><input type="number" id="23t-q4-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Verza 2510</span><input type="number" id="23t-q4-nivel" placeholder="cm"><input type="number" id="23t-q4-dial" step="0.1" placeholder="dial"></div>
         </div>
       </div>
 
@@ -758,7 +789,7 @@
           <div class="quim-row"><span class="quim-name">Desemulsionante</span><input type="number" id="ec19-q1-nivel" placeholder="cm"><input type="number" id="ec19-q1-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Clarificante</span><input type="number" id="ec19-q2-nivel" placeholder="cm"><input type="number" id="ec19-q2-dial" step="0.1" placeholder="dial"></div>
           <div class="quim-row"><span class="quim-name">Bactericida 320 (1)</span><input type="number" id="ec19-q3-nivel" placeholder="cm"><input type="number" id="ec19-q3-dial" step="0.1" placeholder="dial"></div>
-          <div class="quim-row"><span class="quim-name">Bactericida 320 (2)</span><input type="number" id="ec19-q4-nivel" placeholder="cm"><input type="number" id="ec19-q4-dial" step="0.1" placeholder="dial"></div>
+          <div class="quim-row"><span class="quim-name">Verza 2510</span><input type="number" id="ec19-q4-nivel" placeholder="cm"><input type="number" id="ec19-q4-dial" step="0.1" placeholder="dial"></div>
         </div>
       </div>
 
@@ -965,6 +996,9 @@ onAuthStateChanged(auth, user => {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('supervisor-screen').style.display = 'none';
+    // Resetear el botón de ingresar (por si quedó colgado)
+    const btn = document.getElementById('login-btn');
+    if(btn) { btn.disabled = false; btn.textContent = 'ENTRAR'; }
   }
 });
 
@@ -980,7 +1014,17 @@ window.doLogin = async function() {
 };
 document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 
-window.doLogout = async function() { await signOut(auth); };
+window.doLogout = async function() {
+  if(confirm('¿Estás seguro que querés cerrar sesión?')) {
+    await signOut(auth);
+    // Resetear el botón de ingresar y limpiar campos
+    const btn = document.getElementById('login-btn');
+    if(btn) { btn.disabled = false; btn.textContent = 'ENTRAR'; }
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-error').style.display = 'none';
+  }
+};
 
 // CALCULAR VARIACIÓN EN TIEMPO REAL
 const ultimoNivel = {}; // cache del último nivel guardado por planta
@@ -1249,7 +1293,7 @@ function recolectarDatos(p) {
     d['Desemulsionante Nivel']=getVal('23t-q1-nivel'); d['Desemulsionante Dial']=getVal('23t-q1-dial');
     d['Clarificante Nivel']=getVal('23t-q2-nivel'); d['Clarificante Dial']=getVal('23t-q2-dial');
     d['Bactericida 320(1) Nivel']=getVal('23t-q3-nivel'); d['Bactericida 320(1) Dial']=getVal('23t-q3-dial');
-    d['Bactericida 320(2) Nivel']=getVal('23t-q4-nivel'); d['Bactericida 320(2) Dial']=getVal('23t-q4-dial');
+    d['Verza 2510 Nivel']=getVal('23t-q4-nivel'); d['Verza 2510 Dial']=getVal('23t-q4-dial');
     d['Novedades']=getVal('23t-novedades');
   } else if(p==='17T') {
     d['Presión Inyección']=getVal('17t-pres-iny');
@@ -1300,7 +1344,7 @@ function recolectarDatos(p) {
     d['Desemulsionante Nivel']=getVal('ec19-q1-nivel'); d['Desemulsionante Dial']=getVal('ec19-q1-dial');
     d['Clarificante Nivel']=getVal('ec19-q2-nivel'); d['Clarificante Dial']=getVal('ec19-q2-dial');
     d['Bactericida 320(1) Nivel']=getVal('ec19-q3-nivel'); d['Bactericida 320(1) Dial']=getVal('ec19-q3-dial');
-    d['Bactericida 320(2) Nivel']=getVal('ec19-q4-nivel'); d['Bactericida 320(2) Dial']=getVal('ec19-q4-dial');
+    d['Verza 2510 Nivel']=getVal('ec19-q4-nivel'); d['Verza 2510 Dial']=getVal('ec19-q4-dial');
     d['Novedades']=getVal('ec19-novedades');
   } else if(p==='AGUADA') {
     d['Caudal Salida']=getVal('aguada-caudal'); d['AMP Bomba KSB']=getVal('aguada-amp'); d['Presión Impulsión']=getVal('aguada-pres');
@@ -1384,7 +1428,7 @@ const SECCIONES = {
     {titulo:'⚙️ Neumáticas', campos:['Neumática PPA','Neumática 17T/ED','Neumática Entre TK']},
     {titulo:'🔵 Piletas', campos:['Pileta BJ','Pileta Stork','Pileta KSB']},
     {titulo:'🟡 Muestras', campos:['Muestra Agua','Muestra Micro Motion','Muestra Colchón']},
-    {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Bactericida 320(2) Nivel','Bactericida 320(2) Dial']},
+    {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Verza 2510 Nivel','Verza 2510 Dial']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
   '17T':[
@@ -1419,7 +1463,7 @@ const SECCIONES = {
     {titulo:'⚙️ Neumáticas', campos:['Neumática Recirculación Despacho','Neumática Recirculación Inyección']},
     {titulo:'🔵 Piletas', campos:['Pileta SIAM','Pileta Stork']},
     {titulo:'🟡 Muestras', campos:['Muestra Agua','Muestra Micro Motion','Muestra Colchón']},
-    {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Bactericida 320(2) Nivel','Bactericida 320(2) Dial']},
+    {titulo:'🧪 Químicos', campos:['Desemulsionante Nivel','Desemulsionante Dial','Clarificante Nivel','Clarificante Dial','Bactericida 320(1) Nivel','Bactericida 320(1) Dial','Verza 2510 Nivel','Verza 2510 Dial']},
     {titulo:'📝 Novedades', campos:['Novedades']},
   ],
   'AGUADA':[
