@@ -276,7 +276,7 @@
 <div class="login-screen" id="login-screen">
 
 <!-- BANNER ACTUALIZACIÓN -->
-<div id="update-banner" style="display:none;background:linear-gradient(90deg,rgba(0,200,255,0.12),rgba(0,200,255,0.06));border-bottom:1px solid rgba(0,200,255,0.3);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:fixed;top:0;left:0;right:0;z-index:998;">
+<div id="update-banner" style="display:none;background:linear-gradient(90deg,rgba(0,200,255,0.12),rgba(0,200,255,0.06));border-bottom:1px solid rgba(0,200,255,0.3);padding:10px 16px;align-items:center;justify-content:space-between;gap:12px;position:fixed;top:0;left:0;right:0;z-index:998;">
   <span style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#00c8ff;letter-spacing:1px;">🔄 Nueva versión disponible — OilLog v1.1</span>
   <button onclick="mostrarNovedades()" style="background:#00c8ff;border:none;border-radius:6px;color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.85rem;padding:6px 16px;cursor:pointer;letter-spacing:1px;">VER NOVEDADES</button>
 </div>
@@ -1609,6 +1609,11 @@ function recolectarDatos(p) {
     d['Verza 2510(1) Nivel']=getVal('23t-q3-nivel'); d['Verza 2510(1) Dial']=getVal('23t-q3-dial');
     d['Verza 2510(2) Nivel']=getVal('23t-q4-nivel'); d['Verza 2510(2) Dial']=getVal('23t-q4-dial');
     d['Novedades']=getVal('23t-novedades');
+    if(window.turnoActual==='Noche'){
+      d['Acum. A PPA']=getVal('23t-acum-ppa'); d['Acum. A 17T y ED']=getVal('23t-acum-17t');
+      d['Acum. Purga']=getVal('23t-acum-purga'); d['Acum. Recirculación']=getVal('23t-acum-recirc');
+      d['Cierre MicroMotion']=getVal('23t-cierre-micro');
+    }
   } else if(p==='17T') {
     d['Presión Inyección']=getVal('17t-pres-iny');
     d['B.Jackson Estado']=getEstado('17t-bj-est'); d['B.Jackson AMP']=getVal('17t-bj-amp'); d['B.Jackson Contra Presión']=getVal('17t-bj-contra');
@@ -1618,6 +1623,9 @@ function recolectarDatos(p) {
     d['Pileta General']=getPileta('panel-17t','Pileta General');
     d['Muestra Agua']=getPileta('panel-17t','Muestra de Agua');
     d['Novedades']=getVal('17t-novedades');
+    if(window.turnoActual==='Noche'){
+      d['Acum. Ingreso']=getVal('17t-acum-ingreso');
+    }
   } else if(p==='PPA') {
     d['Presión Inyección']=getVal('ppa-pres-iny'); d['Presión Aire']=getVal('ppa-pres-aire');
     d['SIAM1 Estado']=getEstado('ppa-siam1-est'); d['SIAM1 AMP']=getVal('ppa-siam1-amp');
@@ -1628,6 +1636,9 @@ function recolectarDatos(p) {
     d['Pileta BJ']=getPileta('panel-ppa','Pileta Bomba BJ'); d['Pileta SIAM']=getPileta('panel-ppa','Pileta Bomba SIAM');
     d['Muestra Agua']=getPileta('panel-ppa','Muestra de Agua');
     d['Novedades']=getVal('ppa-novedades');
+    if(window.turnoActual==='Noche'){
+      d['Acum. Cargadero']=getVal('ppa-acum-cargadero');
+    }
   } else if(p==='ED1') {
     d['Presión Inyección']=getVal('ed1-pres-iny'); d['Presión Ingreso']=getVal('ed1-pres-ingreso'); d['Presión Compresor']=getVal('ed1-pres-compresor');
     d['SIAM1 Estado']=getEstado('ed1-siam1-est'); d['SIAM1 AMP']=getVal('ed1-siam1-amp');
@@ -1660,12 +1671,22 @@ function recolectarDatos(p) {
     d['Verza 2510(1) Nivel']=getVal('ec19-q3-nivel'); d['Verza 2510(1) Dial']=getVal('ec19-q3-dial');
     d['Verza 2510(2) Nivel']=getVal('ec19-q4-nivel'); d['Verza 2510(2) Dial']=getVal('ec19-q4-dial');
     d['Novedades']=getVal('ec19-novedades');
+    if(window.turnoActual==='Noche'){
+      d['Acum. Recirculación']=getVal('ec19-acum-recirc');
+      d['Cierre MicroMotion']=getVal('ec19-cierre-micro');
+    }
   } else if(p==='AGUADA') {
     d['Caudal Salida']=getVal('aguada-caudal'); d['AMP Bomba KSB']=getVal('aguada-amp'); d['Presión Impulsión']=getVal('aguada-pres');
     d['Novedades']=getVal('aguada-novedades');
+    if(window.turnoActual==='Noche'){
+      d['Acum. Aguada']=getVal('aguada-acum');
+    }
   } else if(p==='O87') {
-    d['Caudal Actual']=getVal('o87-caudal'); d['Acumulado']=getVal('o87-acumulado');
+    d['Caudal Actual']=getVal('o87-caudal');
     d['Novedades']=getVal('o87-novedades');
+    if(window.turnoActual==='Noche'){
+      d['Acum. O87']=getVal('o87-acum-noche');
+    }
   }
   return d;
 }
