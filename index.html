@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro Operativo de Plantas</title>
+<script>
+  // SISTEMA DE VERSIONES
+  const VERSION_ACTUAL = '1.1';
+  const versionGuardada = localStorage.getItem('oillog_version');
+  if (versionGuardada !== VERSION_ACTUAL) {
+    window.hayActualizacion = true;
+  }
+</script>
 
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -24,7 +32,8 @@
 
   /* LOGIN */
   .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 30% 20%,rgba(0,200,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,107,53,0.06) 0%,transparent 60%);overflow:hidden;}
-  .login-logo{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--accent);letter-spacing:3px;margin-bottom:4px;animation:logoFadeIn 1.2s cubic-bezier(0.34,1.56,0.64,1) forwards;opacity:0;transform:translateY(-30px) scale(0.8);text-shadow:0 0 20px rgba(0,200,255,0.5);}
+  .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:8px;animation:logoFadeIn 1.2s cubic-bezier(0.34,1.56,0.64,1) forwards;opacity:0;transform:translateY(-30px) scale(0.8);}
+.login-logo-text{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--accent);letter-spacing:3px;text-shadow:0 0 20px rgba(0,200,255,0.5);}
   .login-sub{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);letter-spacing:2px;margin-bottom:32px;animation:subFadeIn 1.2s ease-out 0.4s forwards;opacity:0;}
   .login-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.4);animation:cardSlideUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.6s forwards;opacity:0;transform:translateY(40px);}
 
@@ -58,6 +67,15 @@
     0%,100% { opacity:0.5; }
     50% { opacity:1; }
   }
+
+  /* PARTÍCULAS */
+  .particles-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
   .login-card h2{font-family:var(--font-head);font-size:1.2rem;letter-spacing:2px;color:var(--text);margin-bottom:20px;text-align:center;}
   .login-field{margin-bottom:14px;}
   .login-field label{display:block;font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;}
@@ -88,8 +106,14 @@
 
   .container{max-width:680px;margin:0 auto;padding:12px;}
   .turno-bar{display:flex;gap:6px;margin-bottom:12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:6px;}
-  .turno-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font-family:var(--font-head);font-size:1rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
-  .turno-btn.active{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 0 14px rgba(0,200,255,0.3);}
+  .turno-btn{flex:1;padding:10px 8px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--muted);font-family:var(--font-head);cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .turno-btn.active{background:rgba(0,200,255,0.1);color:var(--accent);border-color:var(--accent);box-shadow:0 0 14px rgba(0,200,255,0.2);transform:translateY(-2px);}
+  .turno-btn:active{transform:scale(0.96);}
+  .turno-btn.active .turno-icon{animation:iconPulse 1.5s ease-in-out infinite;}
+  @keyframes iconPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+  .turno-icon{font-size:1.3rem;line-height:1;}
+  .turno-label{font-size:0.85rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+  .turno-time{font-family:var(--font-mono);font-size:0.65rem;opacity:0.6;letter-spacing:0.5px;}
 
   /* VUELTA SELECTOR */
   .vuelta-bar{display:flex;gap:6px;margin-bottom:12px;align-items:center;}
@@ -111,9 +135,17 @@
 
   .plant-panel{display:none;}
   .plant-panel.active{display:block;}
+  .solo-noche{display:none !important;}
+  .no-noche{display:block;}
+  .turno-noche .solo-noche{display:block !important;}
+  .turno-noche .no-noche{display:none !important;}
 
-  .section{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
-  .section-header{background:linear-gradient(90deg,var(--bg3),var(--bg2));border-bottom:1px solid var(--border);padding:8px 13px;display:flex;align-items:center;gap:7px;}
+  .section{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;position:relative;}
+  .section::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,255,0.6),transparent);animation:borderGlow 3s ease-in-out infinite;}
+  @keyframes borderGlow{0%{left:-100%;}100%{left:100%;}}
+  .section-header{background:linear-gradient(90deg,rgba(0,200,255,0.06),var(--bg2));border-bottom:1px solid var(--border);border-left:2px solid var(--accent);padding:8px 13px;display:flex;align-items:center;gap:7px;position:relative;overflow:hidden;}
+  .section-header::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,200,255,0.08),transparent);animation:headerShine 4s ease-in-out infinite;}
+  @keyframes headerShine{0%{left:-100%;}100%{left:200%;}}
   .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);flex-shrink:0;}
   .section-header h3{font-family:var(--font-head);font-size:0.85rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
   .section-body{padding:11px;}
@@ -242,7 +274,41 @@
 
 <!-- LOGIN -->
 <div class="login-screen" id="login-screen">
-  <div class="login-logo">🛢 OilLog</div>
+
+<!-- BANNER ACTUALIZACIÓN -->
+<div id="update-banner" style="display:none;background:linear-gradient(90deg,rgba(0,200,255,0.12),rgba(0,200,255,0.06));border-bottom:1px solid rgba(0,200,255,0.3);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:fixed;top:0;left:0;right:0;z-index:998;">
+  <span style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#00c8ff;letter-spacing:1px;">🔄 Nueva versión disponible — OilLog v1.1</span>
+  <button onclick="mostrarNovedades()" style="background:#00c8ff;border:none;border-radius:6px;color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.85rem;padding:6px 16px;cursor:pointer;letter-spacing:1px;">VER NOVEDADES</button>
+</div>
+
+<!-- SPLASH NOVEDADES -->
+<div id="novedades-splash" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#0a0e17;border:1px solid rgba(0,200,255,0.3);border-radius:16px;padding:32px;max-width:400px;width:90%;position:relative;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:#00c8ff;letter-spacing:2px;margin-bottom:4px;">🚀 OilLog v1.1</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:#6b82a8;letter-spacing:1px;margin-bottom:24px;">NOVEDADES DE ESTA VERSIÓN</div>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:28px;">
+      <li style="display:flex;gap:10px;align-items:flex-start;font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#e0eaf8;line-height:1.5;"><span style="color:#00c8ff;font-size:1rem;">✦</span>Nuevo splash de bienvenida personalizado por recorredor</li>
+      <li style="display:flex;gap:10px;align-items:flex-start;font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#e0eaf8;line-height:1.5;"><span style="color:#00c8ff;font-size:1rem;">✦</span>Secciones de acumulados en turno noche por planta</li>
+      <li style="display:flex;gap:10px;align-items:flex-start;font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#e0eaf8;line-height:1.5;"><span style="color:#00c8ff;font-size:1rem;">✦</span>Cierre MicroMotion 23T y EC19 en turno noche</li>
+      <li style="display:flex;gap:10px;align-items:flex-start;font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#e0eaf8;line-height:1.5;"><span style="color:#00c8ff;font-size:1rem;">✦</span>Nuevo diseño del login, header y botones de turno</li>
+      <li style="display:flex;gap:10px;align-items:flex-start;font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#e0eaf8;line-height:1.5;"><span style="color:#00c8ff;font-size:1rem;">✦</span>Partículas animadas en el login</li>
+    </ul>
+    <button onclick="cerrarNovedades()" style="width:100%;background:linear-gradient(135deg,#00c8ff,#0099cc);border:none;border-radius:10px;color:#000;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;padding:14px;cursor:pointer;">ENTENDIDO — ACTUALIZAR 🚀</button>
+  </div>
+</div>
+
+<canvas class="particles-canvas" id="particles"></canvas>
+<div class="login-logo">
+  <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+    <rect x="2" y="8" width="40" height="26" rx="2.5" stroke="#00c8ff" stroke-width="1.5" fill="rgba(0,200,255,0.04)"/>
+    <rect x="17" y="34" width="10" height="4" fill="rgba(0,200,255,0.2)"/>
+    <rect x="13" y="38" width="18" height="1.5" rx="0.75" fill="rgba(0,200,255,0.3)"/>
+    <polyline points="7,30 13,22 19,25 26,14 33,17 38,10" stroke="#00c8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="38" cy="10" r="2" fill="#00c8ff"/>
+    <text x="22" y="31" text-anchor="middle" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="7" fill="#e0eaf8" opacity="0.9" letter-spacing="1">OilLog</text>
+  </svg>
+  <span class="login-logo-text">OilLog</span>
+</div>
   <div class="login-sub">POZOS DE CAPTACIÓN</div>
   <div class="login-card">
     <h2>INGRESAR</h2>
@@ -269,7 +335,17 @@
 <!-- APP -->
 <div class="app-screen" id="app-screen">
   <div class="app-header">
-    <h1>🛢 <span>Oil</span>Log</h1>
+    <div style="display:flex;align-items:center;gap:10px">
+  <svg width="36" height="36" viewBox="0 0 44 44" fill="none">
+    <rect x="2" y="8" width="40" height="26" rx="2.5" stroke="#00c8ff" stroke-width="1.5" fill="rgba(0,200,255,0.04)"/>
+    <rect x="17" y="34" width="10" height="4" fill="rgba(0,200,255,0.2)"/>
+    <rect x="13" y="38" width="18" height="1.5" rx="0.75" fill="rgba(0,200,255,0.3)"/>
+    <polyline points="7,30 13,22 19,25 26,14 33,17 38,10" stroke="#00c8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="38" cy="10" r="2" fill="#00c8ff"/>
+    <text x="22" y="31" text-anchor="middle" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="7" fill="#e0eaf8" opacity="0.9" letter-spacing="1">OilLog</text>
+  </svg>
+  <h1>🛢 <span>Oil</span>Log</h1>
+</div>
     <div class="header-right">
       <div class="header-user" id="header-user">—</div>
       <div style="display:flex;gap:6px;align-items:center">
@@ -281,10 +357,40 @@
   </div>
 
   <div class="container">
-    <div class="turno-bar">
-      <button class="turno-btn active" onclick="setTurno('Mañana',this)">☀ MAÑANA</button>
-      <button class="turno-btn" onclick="setTurno('Tarde',this)">🌤 TARDE</button>
-      <button class="turno-btn" onclick="setTurno('Noche',this)">🌙 NOCHE</button>
+    <!-- SPLASH BIENVENIDA -->
+<div id="welcome-splash" style="display:none;position:fixed;inset:0;background:#0a0e17;z-index:999;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+  <canvas id="splash-particles" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+  <div style="position:relative;z-index:2">
+    <svg width="80" height="80" viewBox="0 0 44 44" fill="none" style="margin-bottom:24px">
+      <rect x="2" y="8" width="40" height="26" rx="2.5" stroke="#00c8ff" stroke-width="1.5" fill="rgba(0,200,255,0.04)"/>
+      <rect x="17" y="34" width="10" height="4" fill="rgba(0,200,255,0.2)"/>
+      <rect x="13" y="38" width="18" height="1.5" rx="0.75" fill="rgba(0,200,255,0.3)"/>
+      <polyline points="7,30 13,22 19,25 26,14 33,17 38,10" stroke="#00c8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="38" cy="10" r="2" fill="#00c8ff"/>
+    </svg>
+    <div id="welcome-saludo" style="font-family:'Rajdhani',sans-serif;font-size:2.2rem;font-weight:700;color:#00c8ff;letter-spacing:2px;margin-bottom:8px;"></div>
+    <div id="welcome-nombre" style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:600;color:#e0eaf8;letter-spacing:3px;margin-bottom:32px;text-transform:uppercase;"></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:#6b82a8;letter-spacing:2px;margin-bottom:32px;">SISTEMA OPERATIVO · LISTO</div>
+    <button onclick="cerrarWelcome()" style="background:linear-gradient(135deg,#00c8ff,#0099cc);border:none;border-radius:10px;color:#000;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;padding:14px 40px;cursor:pointer;">INGRESAR AL SISTEMA →</button>
+  </div>
+</div>
+
+<div class="turno-bar">
+      <button class="turno-btn active" onclick="setTurno('Mañana',this)">
+        <span class="turno-icon">☀️</span>
+        <span class="turno-label">MAÑANA</span>
+        <span class="turno-time">06:00 — 14:00</span>
+      </button>
+      <button class="turno-btn" onclick="setTurno('Tarde',this)">
+        <span class="turno-icon">🌤️</span>
+        <span class="turno-label">TARDE</span>
+        <span class="turno-time">14:00 — 22:00</span>
+      </button>
+      <button class="turno-btn" onclick="setTurno('Noche',this)">
+        <span class="turno-icon">🌙</span>
+        <span class="turno-label">NOCHE</span>
+        <span class="turno-time">22:00 — 06:00</span>
+      </button>
     </div>
 
     <div class="vuelta-bar">
@@ -296,8 +402,14 @@
     </div>
 
     <div class="meta-card">
-      <div class="field-group"><label>Fecha</label><input type="text" id="meta-fecha" readonly style="cursor:default;opacity:0.8;"></div>
-      <div class="field-group"><label>Recorredor</label><input type="text" id="meta-recorredor" placeholder="Nombre..." readonly></div>
+      <div class="field-group">
+        <label>📅 Fecha</label>
+        <input type="text" id="meta-fecha" readonly style="cursor:default;opacity:0.8;font-family:var(--font-mono);font-size:0.95rem;letter-spacing:1px;color:var(--accent);">
+      </div>
+      <div class="field-group">
+        <label>👤 Recorredor</label>
+        <input type="text" id="meta-recorredor" placeholder="Nombre..." readonly style="font-family:var(--font-head);font-size:1rem;font-weight:600;letter-spacing:1px;color:var(--text);">
+      </div>
     </div>
 
     <div class="plant-nav">
@@ -440,12 +552,36 @@
         </div>
       </div>
 
-      <div class="section">
+      <div class="section no-noche">
         <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras 23T</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Muestra Micro Motion</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Muestra Colchón</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#00c8ff"></div><h3>⚡ Acumulados 23T — Turno Noche</h3></div>
+        <div class="section-body">
+          <div class="field-row cols-2">
+            <div class="field"><label>23T → PPA</label><input type="number" id="23t-acum-ppa" placeholder="m³"></div>
+            <div class="field"><label>23T → 17T y ED</label><input type="number" id="23t-acum-17t" placeholder="m³"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field"><label>Purga</label><input type="number" id="23t-acum-purga" placeholder="m³"></div>
+            <div class="field"><label>Recirculación</label><input type="number" id="23t-acum-recirc" placeholder="m³"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#ff6b35"></div><h3>🔢 Cierre MicroMotion 23T</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Cierre MicroMotion (m³/día)</label><input type="number" id="23t-cierre-micro" placeholder="m³/día"></div>
+          </div>
         </div>
       </div>
 
@@ -511,10 +647,19 @@
           <button class="autocomplete-btn" onclick="autocompletar('17T','pil')">📋 Autocompletar</button>
         </div>
       </div>
-      <div class="section">
+      <div class="section no-noche">
         <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras 17T</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#00c8ff"></div><h3>⚡ Acumulados 17T — Turno Noche</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Acumulado Ingreso</label><input type="number" id="17t-acum-ingreso" placeholder="m³"></div>
+          </div>
         </div>
       </div>
 
@@ -589,10 +734,19 @@
           <button class="autocomplete-btn" onclick="autocompletar('PPA','pil')">📋 Autocompletar</button>
         </div>
       </div>
-      <div class="section">
+      <div class="section no-noche">
         <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras PPA</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#00c8ff"></div><h3>⚡ Acumulados PPA — Turno Noche</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Cargadero</label><input type="number" id="ppa-acum-cargadero" placeholder="m³"></div>
+          </div>
         </div>
       </div>
 
@@ -674,7 +828,7 @@
           <button class="autocomplete-btn" onclick="autocompletar('ED1','pil')">📋 Autocompletar</button>
         </div>
       </div>
-      <div class="section">
+      <div class="section no-noche">
         <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras ED1</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
@@ -804,12 +958,30 @@
         </div>
       </div>
 
-      <div class="section">
+      <div class="section no-noche">
         <div class="section-header"><div class="dot" style="background:#fbbf24"></div><h3>Muestras EC19</h3></div>
         <div class="section-body">
           <div class="pileta-row"><span class="pileta-name">Muestra de Agua</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Muestra Micro Motion</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
           <div class="pileta-row"><span class="pileta-name">Muestra Colchón</span><div class="pileta-btns"><button class="pileta-btn" onclick="togglePileta(this,'llena')">Sí</button><button class="pileta-btn" onclick="togglePileta(this,'vacia')">No</button></div></div>
+        </div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#00c8ff"></div><h3>⚡ Acumulados EC19 — Turno Noche</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Recirculación</label><input type="number" id="ec19-acum-recirc" placeholder="m³"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#ff6b35"></div><h3>🔢 Cierre MicroMotion EC19</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Cierre MicroMotion (m³/día)</label><input type="number" id="ec19-cierre-micro" placeholder="m³/día"></div>
+          </div>
         </div>
       </div>
 
@@ -837,6 +1009,15 @@
         <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades Aguada</h3></div>
         <div class="section-body"><div class="field"><textarea id="aguada-novedades" placeholder="Novedades del turno..."></textarea></div></div>
       </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#00c8ff"></div><h3>⚡ Acumulados AGUADA — Turno Noche</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Acumulado</label><input type="number" id="aguada-acum" placeholder="m³"></div>
+          </div>
+        </div>
+      </div>
       <button class="save-btn" id="btn-aguada" onclick="guardarPlanta('AGUADA')">💾 GUARDAR AGUADA DEL NORTE</button>
       <button class="historial-btn" onclick="verHistorial('AGUADA')">📋 VER HISTORIAL AGUADA</button>
     </div>
@@ -846,15 +1027,23 @@
       <div class="section">
         <div class="section-header"><div class="dot"></div><h3>Caudalímetro O87</h3></div>
         <div class="section-body">
-          <div class="field-row cols-2">
+          <div class="field-row">
             <div class="field"><label>Caudal Actual (m³/hs)</label><input type="number" id="o87-caudal" step="0.1" placeholder="0.0"></div>
-            <div class="field"><label>Acumulado (m³)</label><input type="number" id="o87-acumulado" step="0.1" placeholder="0.0"></div>
           </div>
         </div>
       </div>
       <div class="section">
         <div class="section-header"><div class="dot" style="background:var(--muted)"></div><h3>Novedades O87</h3></div>
         <div class="section-body"><div class="field"><textarea id="o87-novedades" placeholder="Novedades..."></textarea></div></div>
+      </div>
+
+      <div class="section solo-noche">
+        <div class="section-header"><div class="dot" style="background:#00c8ff"></div><h3>⚡ Acumulados O87 — Turno Noche</h3></div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field"><label>Acumulado</label><input type="number" id="o87-acum-noche" placeholder="m³"></div>
+          </div>
+        </div>
       </div>
       <button class="save-btn" id="btn-o87" onclick="guardarPlanta('O87')">💾 GUARDAR O87</button>
       <button class="historial-btn" onclick="verHistorial('O87')">📋 VER HISTORIAL O87</button>
@@ -951,6 +1140,100 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// PARTÍCULAS LOGIN
+function initParticles() {
+  const canvas = document.getElementById('particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = Array.from({length: 60}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    r: Math.random() * 1.8 + 0.5,
+    alpha: Math.random() * 0.5 + 0.1
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,200,255,${p.alpha})`;
+      ctx.fill();
+    });
+    // Líneas entre partículas cercanas
+    particles.forEach((p, i) => {
+      particles.slice(i+1).forEach(q => {
+        const d = Math.hypot(p.x-q.x, p.y-q.y);
+        if (d < 100) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(0,200,255,${0.08 * (1 - d/100)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      });
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+}
+initParticles();
+
+// SPLASH BIENVENIDA
+function mostrarWelcome(nombre) {
+  const hoy = new Date().toDateString();
+  const guardado = localStorage.getItem('welcomeDate_' + nombre);
+  if (guardado === hoy) return;
+
+  const hora = new Date().getHours();
+  let saludo, emoji;
+  if (hora >= 6 && hora < 12) { saludo = 'Buenos días'; emoji = '☀️'; }
+  else if (hora >= 12 && hora < 20) { saludo = 'Buenas tardes'; emoji = '🌤️'; }
+  else { saludo = 'Buenas noches'; emoji = '🌙'; }
+
+  document.getElementById('welcome-saludo').textContent = emoji + ' ' + saludo + '!';
+  document.getElementById('welcome-nombre').textContent = nombre.split(' ')[0];
+  const splash = document.getElementById('welcome-splash');
+  splash.style.display = 'flex';
+  localStorage.setItem('welcomeDate_' + nombre, hoy);
+}
+
+window.cerrarWelcome = function() {
+  const splash = document.getElementById('welcome-splash');
+  if (splash) splash.style.display = 'none';
+}
+
+// MOSTRAR BANNER SI HAY ACTUALIZACIÓN
+if (window.hayActualizacion) {
+  document.getElementById('update-banner').style.display = 'flex';
+}
+
+window.mostrarNovedades = function() {
+  document.getElementById('novedades-splash').style.display = 'flex';
+}
+
+window.cerrarNovedades = function() {
+  document.getElementById('novedades-splash').style.display = 'none';
+  document.getElementById('update-banner').style.display = 'none';
+  localStorage.setItem('oillog_version', VERSION_ACTUAL);
+  location.reload();
+}
 import { getFirestore, collection, addDoc, updateDoc, doc, query, where, orderBy, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1000,6 +1283,7 @@ onAuthStateChanged(auth, user => {
     const nombre = recorredores[user.email] || user.email;
     document.getElementById('header-user').textContent = '👤 ' + nombre;
     document.getElementById('meta-recorredor').value = nombre;
+      mostrarWelcome(nombre);
     const now2 = new Date();
     const dd = String(now2.getDate()).padStart(2,'0');
     const mm = String(now2.getMonth()+1).padStart(2,'0');
@@ -1111,10 +1395,18 @@ window.setTurno = function(t, btn) {
   window.turnoActual = t;
   document.querySelectorAll('.turno-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  // Mostrar colchon solo en turno mañana
-  const show = t === 'Mañana';
-  document.getElementById('colchon-23t').style.display = show ? 'block' : 'none';
-  document.getElementById('colchon-ec19').style.display = show ? 'block' : 'none';
+  const esMañana = t === 'Mañana';
+  const esNoche = t === 'Noche';
+  // Colchon solo en turno mañana
+  document.getElementById('colchon-23t').style.display = esMañana ? 'block' : 'none';
+  document.getElementById('colchon-ec19').style.display = esMañana ? 'block' : 'none';
+  // Mostrar/ocultar secciones de noche
+  const container = document.querySelector('.container');
+  if(esNoche) {
+    container.classList.add('turno-noche');
+  } else {
+    container.classList.remove('turno-noche');
+  }
 };
 
 // Colchon automático EC19
