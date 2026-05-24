@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\marce\\\\OneDrive\\\\Escritorio\\\\OperLog\\\\OilLog\" -Recurse -Force | Select-Object -Property FullName, @{Name=\"Type\"; Expression={if \\($_.PSIsContainer\\) { \"DIR\" } else { \"FILE\" }}} | Sort-Object FullName)"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\marce\\\\OneDrive\\\\Escritorio\\\\OperLog\\\\OilLog\" -Recurse -Force | Select-Object -Property FullName, @{Name=\"Type\"; Expression={if \\($_.PSIsContainer\\) { \"DIR\" } else { \"FILE\" }}} | Sort-Object FullName)",
+      "PowerShell(git add *)"
     ]
   }
 }
