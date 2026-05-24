@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1929;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a2235;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00c8ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00c8ff;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#00c8ff;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="100" ry="100" fill="url(#bgGrad)"/>
+
+  <!-- Subtle border glow -->
+  <rect width="512" height="512" rx="100" ry="100" fill="none" stroke="#00c8ff" stroke-width="3" stroke-opacity="0.3"/>
+
+  <!-- Oil drop shape -->
+  <path d="M256 100 
+           C256 100, 170 200, 150 280 
+           C130 360, 185 430, 256 430 
+           C327 430, 382 360, 362 280 
+           C342 200, 256 100, 256 100 Z" 
+        fill="url(#dropGrad)" 
+        filter="url(#glow)"
+        opacity="0.95"/>
+
+  <!-- Drop highlight -->
+  <ellipse cx="220" cy="240" rx="22" ry="40" 
+           fill="white" opacity="0.2" 
+           transform="rotate(-20, 220, 240)"/>
+
+  <!-- Inner shine -->
+  <path d="M256 130
+           C256 130, 195 210, 178 278
+           C170 310, 178 350, 200 385"
+        fill="none" stroke="white" stroke-width="3" 
+        stroke-opacity="0.15" stroke-linecap="round"/>
+
+  <!-- OilLog text -->
+  <text x="256" y="490" 
+        font-family="'Rajdhani', 'Arial Black', sans-serif" 
+        font-size="0" 
+        text-anchor="middle" 
+        fill="#e0eaf8"
+        font-weight="700"
+        letter-spacing="4">
+  </text>
+
+  <!-- OIL text inside drop -->
+  <text x="256" y="295" 
+        font-family="'Arial Black', 'Rajdhani', sans-serif" 
+        font-size="72" 
+        text-anchor="middle" 
+        fill="white"
+        font-weight="900"
+        letter-spacing="2"
+        filter="url(#softglow)">OIL</text>
+
+  <!-- LOG text below drop -->
+  <text x="256" y="480" 
+        font-family="'Arial Black', sans-serif" 
+        font-size="52" 
+        text-anchor="middle" 
+        fill="#00c8ff"
+        font-weight="900"
+        letter-spacing="8"
+        filter="url(#softglow)">LOG</text>
+
+  <!-- Decorative line under LOG -->
+  <line x1="156" y1="490" x2="356" y2="490" 
+        stroke="#ff6b35" stroke-width="3" 
+        stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Small dots decoration -->
+  <circle cx="136" cy="490" r="4" fill="#ff6b35" opacity="0.8"/>
+  <circle cx="376" cy="490" r="4" fill="#ff6b35" opacity="0.8"/>
+</svg>
