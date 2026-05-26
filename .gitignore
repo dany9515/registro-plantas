@@ -3,4 +3,3 @@ package.json
 package-lock.json
 *.png
 parte-prueba.html
-assets/firebase-config.js
