@@ -1,0 +1,17 @@
+{
+  "name": "OilLog",
+  "short_name": "OilLog",
+  "description": "Registro Operativo de Plantas - Pozos de Captación",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e17",
+  "theme_color": "#00c8ff",
+  "icons": [
+    {
+      "src": "oillog_icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
