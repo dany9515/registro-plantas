@@ -1594,24 +1594,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const recorredores = {
-  'leandro.nino@registroplantas.com':'Leandro Niño',
-  'hugo.juarez@registroplantas.com':'Hugo Juárez',
-  'maximiliano.rodriguez@registroplantas.com':'Maximiliano Rodríguez',
-  'david.fuentes@registroplantas.com':'David Fuentes',
-  'gabriel.espinoza@registroplantas.com':'Gabriel Espinoza',
-  'carlos.medina@registroplantas.com':'Carlos Medina',
-  'daniel.aguilar@registroplantas.com':'Daniel Aguilar',
-  'ricardo.zambrano@registroplantas.com':'Ricardo Zambrano',
-  'marcelo.barrionuevo@registroplantas.com':'Marcelo Barrionuevo',
-  'pedro.demo@oillog.com':'Pedro Demo'
-};
-
-// Lista de supervisores — solo ven novedades
-const supervisores = {
-  'pedro.1234@registroplantas.com':'Pedro (Demo Supervisor)'
-};
-
 onAuthStateChanged(auth, async user => {
   document.getElementById('loading').classList.add('hidden');
   if (user) {
@@ -1625,15 +1607,12 @@ onAuthStateChanged(auth, async user => {
       }
     } catch(e) {}
 
-    // Fallback a los objetos hardcodeados si Firestore no devolvió datos
     if (!nombre) {
-      if (supervisores[user.email]) {
-        nombre = supervisores[user.email];
-        rol = 'supervisor';
-      } else {
-        nombre = recorredores[user.email] || user.email;
-        rol = 'recorredor';
-      }
+      await signOut(auth);
+      const err = document.getElementById('login-error');
+      err.textContent = 'Usuario no habilitado. Contactá al administrador.';
+      err.style.display = 'block';
+      return;
     }
 
     if (rol === 'supervisor') {
