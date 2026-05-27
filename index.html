@@ -255,6 +255,8 @@
   .reg-variacion{background:rgba(0,230,118,0.1);border-radius:6px;padding:6px 10px;font-family:var(--font-mono);font-size:0.78rem;color:var(--green);margin:8px 14px 0;}
   .reg-editado{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);}
   .reg-edit-btn{font-family:var(--font-mono);font-size:0.72rem;color:var(--yellow);background:none;border:1px solid var(--yellow);border-radius:4px;padding:4px 10px;cursor:pointer;margin:8px 14px;display:inline-block;}
+  .historial-cargar-mas{width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--muted);font-family:var(--font-head);font-size:0.85rem;font-weight:600;letter-spacing:1px;cursor:pointer;margin-top:8px;transition:all 0.2s;display:block;}
+  .historial-cargar-mas:hover{border-color:var(--accent);color:var(--accent);}
 
   .loading-overlay{position:fixed;inset:0;background:rgba(10,14,23,0.95);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
   .loading-overlay.hidden{display:none;}
@@ -1586,7 +1588,7 @@ window.cerrarNovedades = function() {
   localStorage.setItem('oillog_version', VERSION_ACTUAL);
   location.reload();
 }
-import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, query, where, orderBy, limit, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, query, where, orderBy, limit, startAfter, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { firebaseConfig } from '/assets/firebase-config.js';
 
@@ -2183,78 +2185,125 @@ const SECCIONES = {
 };
 
 // HISTORIAL ACORDEÓN
-window.verHistorial = async function(planta) {
-  document.getElementById('modal-title').textContent='Historial — '+planta;
-  document.getElementById('modal-body').innerHTML='<div class="no-registros">Cargando...</div>';
-  document.getElementById('modal').classList.add('show');
-  try {
-    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
-    const snap = await getDocs(q);
-    if(snap.empty) { document.getElementById('modal-body').innerHTML='<div class="no-registros">Sin registros aún.</div>'; return; }
-    const currentUser = auth.currentUser?.email||'';
-    const ahora = Date.now();
-    const docs = snap.docs;
+// Estado por planta: docs acumulados + si ya no hay más
+const historialState = {};
 
-    // Calcular variaciones de nivel
-    const variaciones = {};
-    const campoNivel = {'23T':'TK Inyector','PPA':'Nivel TK','17T':'Nivel TK','ED1':'Nivel TK'}[planta];
-    if(campoNivel) {
-      for(let i=0; i<docs.length-1; i++) {
-        const curr = docs[i].data(), prev = docs[i+1].data();
-        const n1 = parseFloat(curr.datos?.[campoNivel]), n2 = parseFloat(prev.datos?.[campoNivel]);
-        if(isNaN(n1)||isNaN(n2)) continue;
-        const ts1 = curr.timestamp?.toMillis?curr.timestamp.toMillis():0;
-        const ts2 = prev.timestamp?.toMillis?prev.timestamp.toMillis():0;
-        if(!ts1||!ts2||ts1===ts2) continue;
-        const diffMin = (ts1-ts2)/60000;
-        const horas = Math.round(diffMin/60);
-        if(horas<=0) continue;
-        const diffCm = (n1-n2)*100;
-        const cmH = (diffCm/horas).toFixed(1);
-        const flecha = diffCm>0?'⬆️':diffCm<0?'⬇️':'➡️';
-        variaciones[docs[i].id] = `${flecha} ${Math.abs(cmH)} cm/hr (en ${horas}hs)`;
-      }
+function renderHistorial(planta, docs, ahora) {
+  const currentUser = auth.currentUser?.email||'';
+  const secciones = SECCIONES[planta]||[];
+  const campoNivel = {'23T':'TK Inyector','PPA':'Nivel TK','17T':'Nivel TK','ED1':'Nivel TK'}[planta];
+
+  const variaciones = {};
+  if(campoNivel) {
+    for(let i=0; i<docs.length-1; i++) {
+      const curr = docs[i].data(), prev = docs[i+1].data();
+      const n1 = parseFloat(curr.datos?.[campoNivel]), n2 = parseFloat(prev.datos?.[campoNivel]);
+      if(isNaN(n1)||isNaN(n2)) continue;
+      const ts1 = curr.timestamp?.toMillis?curr.timestamp.toMillis():0;
+      const ts2 = prev.timestamp?.toMillis?prev.timestamp.toMillis():0;
+      if(!ts1||!ts2||ts1===ts2) continue;
+      const diffMin = (ts1-ts2)/60000;
+      const horas = Math.round(diffMin/60);
+      if(horas<=0) continue;
+      const diffCm = (n1-n2)*100;
+      const cmH = (diffCm/horas).toFixed(1);
+      const flecha = diffCm>0?'⬆️':diffCm<0?'⬇️':'➡️';
+      variaciones[docs[i].id] = `${flecha} ${Math.abs(cmH)} cm/hr (en ${horas}hs)`;
+    }
+  }
+
+  const cards = docs.map(docSnap => {
+    const r = docSnap.data();
+    const ts = r.timestamp?.toMillis?r.timestamp.toMillis():0;
+    const puedeEditar = r.userEmail===currentUser && (ahora-ts)<30*60*1000;
+    const editadoLabel = r.editado ? ' <span class="reg-editado">✏️ editado</span>' : '';
+    const varHtml = variaciones[docSnap.id] ? `<div class="reg-variacion">📊 ${variaciones[docSnap.id]}</div>` : '';
+
+    const secHtml = secciones.map(sec => {
+      const camposHtml = sec.campos.filter(c => r.datos?.[c] && r.datos[c]!=='—').map(c => {
+        if(c==='Novedades') return `<div class="reg-novedades">${r.datos[c]}</div>`;
+        return `<div class="reg-campo"><span class="reg-campo-nombre">${c}</span><span class="reg-campo-valor">${r.datos[c]}</span></div>`;
+      }).join('');
+      if(!camposHtml) return '';
+      return `<div class="reg-seccion"><div class="reg-seccion-title">${sec.titulo}</div>${camposHtml}</div>`;
+    }).join('');
+
+    const editBtn = puedeEditar ? `<button class="reg-edit-btn" onclick="editarRegistro('${docSnap.id}','${planta}')">✏️ Editar registro</button>` : '';
+
+    return `<div class="reg-card">
+      <div class="reg-header" onclick="toggleAcordeon(this)">
+        <div class="reg-header-left">
+          <div class="reg-meta">📅 ${r.fecha} | ${r.turno} | 👤 ${r.recorredor}${editadoLabel}</div>
+          <div class="reg-vuelta">🔄 Vuelta ${r.vuelta||'—'} &nbsp;⏱ ${r.hora||'—'}hs</div>
+        </div>
+        <div class="reg-arrow">▼</div>
+      </div>
+      <div class="reg-body">
+        ${varHtml}
+        ${secHtml}
+        ${editBtn}
+      </div>
+    </div>`;
+  }).join('');
+
+  const state = historialState[planta];
+  const pie = state?.exhausted
+    ? '<div class="no-registros" style="padding:12px 0;font-size:0.82rem;">No hay registros anteriores.</div>'
+    : `<button class="historial-cargar-mas" onclick="cargarMasHistorial('${planta}')">+ Ver registros anteriores</button>`;
+
+  document.getElementById('modal-body').innerHTML = cards + pie;
+}
+
+async function cargarHistorialDesde(planta, append) {
+  const state = historialState[planta] || { allDocs: [], exhausted: false };
+  try {
+    const ahora = Date.now();
+    let q;
+
+    if (!append) {
+      // Carga inicial: últimas 48hs
+      const desde = Timestamp.fromMillis(ahora - 48 * 60 * 60 * 1000);
+      q = query(collection(db,'registros'), where('planta','==',planta), where('timestamp','>=',desde), orderBy('timestamp','desc'));
+    } else if (state.allDocs.length > 0) {
+      // Cursor desde el registro más viejo que ya se muestra
+      q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'), startAfter(state.allDocs[state.allDocs.length-1]), limit(20));
+    } else {
+      // 48hs vacío: buscar cualquier registro sin filtro de fecha
+      q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'), limit(20));
     }
 
-    const secciones = SECCIONES[planta]||[];
+    const snap = await getDocs(q);
 
-    document.getElementById('modal-body').innerHTML = docs.map((docSnap,idx) => {
-      const r = docSnap.data();
-      const ts = r.timestamp?.toMillis?r.timestamp.toMillis():0;
-      const puedeEditar = r.userEmail===currentUser && (ahora-ts)<30*60*1000;
-      const editadoLabel = r.editado ? ' <span class="reg-editado">✏️ editado</span>' : '';
-      const varHtml = variaciones[docSnap.id] ? `<div class="reg-variacion">📊 ${variaciones[docSnap.id]}</div>` : '';
+    if (!append && snap.empty) {
+      // Nada en 48hs — mostrar botón para buscar más atrás
+      historialState[planta] = { allDocs: [], exhausted: false };
+      document.getElementById('modal-body').innerHTML =
+        `<div class="no-registros">Sin registros en las últimas 48hs.</div>` +
+        `<button class="historial-cargar-mas" onclick="cargarMasHistorial('${planta}')">+ Buscar registros anteriores</button>`;
+      return;
+    }
 
-      const secHtml = secciones.map(sec => {
-        const camposHtml = sec.campos.filter(c => r.datos?.[c] && r.datos[c]!=='—').map(c => {
-          if(c==='Novedades') return `<div class="reg-novedades">${r.datos[c]}</div>`;
-          return `<div class="reg-campo"><span class="reg-campo-nombre">${c}</span><span class="reg-campo-valor">${r.datos[c]}</span></div>`;
-        }).join('');
-        if(!camposHtml) return '';
-        return `<div class="reg-seccion"><div class="reg-seccion-title">${sec.titulo}</div>${camposHtml}</div>`;
-      }).join('');
+    const allDocs = append ? [...state.allDocs, ...snap.docs] : snap.docs;
+    historialState[planta] = { allDocs, exhausted: snap.empty };
 
-      const editBtn = puedeEditar ? `<button class="reg-edit-btn" onclick="editarRegistro('${docSnap.id}','${planta}')">✏️ Editar registro</button>` : '';
-
-      return `<div class="reg-card">
-        <div class="reg-header" onclick="toggleAcordeon(this)">
-          <div class="reg-header-left">
-            <div class="reg-meta">📅 ${r.fecha} | ${r.turno} | 👤 ${r.recorredor}${editadoLabel}</div>
-            <div class="reg-vuelta">🔄 Vuelta ${r.vuelta||'—'} &nbsp;⏱ ${r.hora||'—'}hs</div>
-          </div>
-          <div class="reg-arrow">▼</div>
-        </div>
-        <div class="reg-body">
-          ${varHtml}
-          ${secHtml}
-          ${editBtn}
-        </div>
-      </div>`;
-    }).join('');
+    renderHistorial(planta, allDocs, ahora);
   } catch(e) {
     document.getElementById('modal-body').innerHTML='<div class="no-registros">Error al cargar. Intentá de nuevo.</div>';
     console.error(e);
   }
+}
+
+window.verHistorial = async function(planta) {
+  historialState[planta] = { allDocs: [], exhausted: false };
+  document.getElementById('modal-title').textContent = 'Historial — ' + planta;
+  document.getElementById('modal-body').innerHTML = '<div class="no-registros">Cargando...</div>';
+  document.getElementById('modal').classList.add('show');
+  await cargarHistorialDesde(planta, false);
+};
+
+window.cargarMasHistorial = async function(planta) {
+  document.getElementById('modal-body').innerHTML = '<div class="no-registros">Cargando...</div>';
+  await cargarHistorialDesde(planta, true);
 };
 
 window.toggleAcordeon = function(header) {
