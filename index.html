@@ -1426,14 +1426,22 @@
     </div>
   </div>
   <div class="container">
-    <div class="meta-card" style="grid-template-columns:1fr">
+    <div class="meta-card" style="grid-template-columns:1fr 1fr">
       <div class="field-group">
-        <label>📅 Filtrar por fecha</label>
-        <select id="sup-fecha" onchange="cargarNovedadesSupervisor()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
-          <option value="hoy">Hoy</option>
-          <option value="ayer">Ayer</option>
-          <option value="semana">Última semana</option>
+        <label>📅 Fecha</label>
+        <input type="date" id="sup-fecha" onchange="cargarNovedadesSupervisor()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:0.95rem;padding:10px 12px;outline:none;color-scheme:dark;">
+      </div>
+      <div class="field-group">
+        <label>🏭 Planta</label>
+        <select id="sup-planta" onchange="cargarNovedadesSupervisor()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
           <option value="todas">Todas</option>
+          <option value="23T">23T</option>
+          <option value="17T">17T</option>
+          <option value="PPA">PPA</option>
+          <option value="ED1">ED1</option>
+          <option value="EC19">EC19</option>
+          <option value="AGUADA">AGUADA</option>
+          <option value="O87">O87</option>
         </select>
       </div>
     </div>
@@ -1633,6 +1641,11 @@ async function iniciarConUsuario(user) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('supervisor-screen').style.display = 'block';
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth()+1).padStart(2,'0');
+    const dd = String(hoy.getDate()).padStart(2,'0');
+    document.getElementById('sup-fecha').value = `${yyyy}-${mm}-${dd}`;
     cargarNovedadesSupervisor();
     return;
   }
@@ -2427,35 +2440,31 @@ function showToast(msg, isError=false) {
 
 // ══════ FUNCIONES SUPERVISOR ══════
 window.cargarNovedadesSupervisor = async function() {
-  const filtro = document.getElementById('sup-fecha').value;
+  const fechaVal = document.getElementById('sup-fecha').value;       // YYYY-MM-DD
+  const plantaFiltro = document.getElementById('sup-planta').value;  // "todas" o nombre
   const container = document.getElementById('sup-novedades-container');
   container.innerHTML = '<div class="no-registros">Cargando novedades...</div>';
+
+  // Convertir YYYY-MM-DD → DD/MM/YYYY para comparar con r.fecha
+  let fechaFiltro = '';
+  if (fechaVal) {
+    const [y, m, d] = fechaVal.split('-');
+    fechaFiltro = `${d}/${m}/${y}`;
+  }
 
   try {
     const q = query(collection(db,'registros'), orderBy('timestamp','desc'));
     const snap = await getDocs(q);
     if(snap.empty) { container.innerHTML='<div class="no-registros">Sin novedades aún.</div>'; return; }
 
-    const ahora = new Date();
-    const hoyStr = String(ahora.getDate()).padStart(2,'0')+'/'+String(ahora.getMonth()+1).padStart(2,'0')+'/'+ahora.getFullYear();
-    const ayer = new Date(ahora.getTime() - 24*60*60*1000);
-    const ayerStr = String(ayer.getDate()).padStart(2,'0')+'/'+String(ayer.getMonth()+1).padStart(2,'0')+'/'+ayer.getFullYear();
-    const haceUnaSemana = ahora.getTime() - 7*24*60*60*1000;
-
-    // Filtrar y solo mostrar las que tienen novedades
     const novedades = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
       .filter(r => {
         const nov = r.datos?.['Novedades'];
         if(!nov || nov === '—' || nov.trim() === '') return false;
-        // Aplicar filtro de fecha
-        if(filtro === 'hoy') return r.fecha === hoyStr;
-        if(filtro === 'ayer') return r.fecha === ayerStr;
-        if(filtro === 'semana') {
-          const ts = r.timestamp?.toMillis ? r.timestamp.toMillis() : 0;
-          return ts >= haceUnaSemana;
-        }
-        return true; // todas
+        if(fechaFiltro && r.fecha !== fechaFiltro) return false;
+        if(plantaFiltro !== 'todas' && r.planta !== plantaFiltro) return false;
+        return true;
       });
 
     if(novedades.length === 0) {
