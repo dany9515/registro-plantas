@@ -1594,70 +1594,84 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+async function iniciarConUsuario(user) {
+  let nombre, rol;
+
+  try {
+    const docSnap = await getDoc(doc(db, 'usuarios', user.uid));
+    if (docSnap.exists()) {
+      nombre = docSnap.data().nombre;
+      rol    = docSnap.data().rol;
+    }
+  } catch(e) {
+    // getDoc solo lanza excepciones por errores de red/Firebase.
+    // "UID no existe" resuelve normalmente con docSnap.exists() === false — nunca llega acá.
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('supervisor-screen').style.display = 'none';
+    const err = document.getElementById('login-error');
+    err.textContent = 'Sin conexión. Reintentando cuando vuelva la red...';
+    err.style.display = 'block';
+    window.addEventListener('online', () => iniciarConUsuario(user), { once: true });
+    return;
+  }
+
+  if (!nombre) {
+    await signOut(auth);
+    const err = document.getElementById('login-error');
+    err.textContent = 'Usuario no habilitado. Contactá al administrador.';
+    err.style.display = 'block';
+    return;
+  }
+
+  document.getElementById('login-error').style.display = 'none';
+
+  if (rol === 'supervisor') {
+    document.getElementById('sup-user').textContent = '👤 ' + nombre;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('supervisor-screen').style.display = 'block';
+    cargarNovedadesSupervisor();
+    return;
+  }
+
+  document.getElementById('header-user').textContent = '👤 ' + nombre;
+  document.getElementById('meta-recorredor').value = nombre;
+  mostrarWelcome(nombre);
+  const now2 = new Date();
+  const dd = String(now2.getDate()).padStart(2,'0');
+  const mm = String(now2.getMonth()+1).padStart(2,'0');
+  const yyyy = now2.getFullYear();
+  document.getElementById('meta-fecha').value = `${dd}/${mm}/${yyyy}`;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('supervisor-screen').style.display = 'none';
+  const horaActual = new Date().getHours();
+  let turnoAuto, btnIndex;
+  if(horaActual >= 6 && horaActual < 14)       { turnoAuto = 'Mañana'; btnIndex = 0; }
+  else if(horaActual >= 14 && horaActual < 22) { turnoAuto = 'Tarde';  btnIndex = 1; }
+  else                                          { turnoAuto = 'Noche';  btnIndex = 2; }
+  const turnoBtns = document.querySelectorAll('.turno-btn');
+  turnoBtns.forEach(b => b.classList.remove('active'));
+  turnoBtns[btnIndex].classList.add('active');
+  window.turnoActual = turnoAuto;
+  const esNocheAuto = turnoAuto === 'Noche';
+  const esMañanaAuto = turnoAuto === 'Mañana';
+  document.querySelector('.container').classList.toggle('turno-noche', esNocheAuto);
+  document.getElementById('colchon-23t').style.display = esMañanaAuto ? 'block' : 'none';
+  document.getElementById('colchon-ec19').style.display = esMañanaAuto ? 'block' : 'none';
+  ['23T','PPA','17T','ED1'].forEach(p => cargarUltimoNivel(p));
+  cargarUltimoRegistro();
+}
+
 onAuthStateChanged(auth, async user => {
   document.getElementById('loading').classList.add('hidden');
   if (user) {
-    let nombre, rol;
-
-    try {
-      const docSnap = await getDoc(doc(db, 'usuarios', user.uid));
-      if (docSnap.exists()) {
-        nombre = docSnap.data().nombre;
-        rol    = docSnap.data().rol;
-      }
-    } catch(e) {}
-
-    if (!nombre) {
-      await signOut(auth);
-      const err = document.getElementById('login-error');
-      err.textContent = 'Usuario no habilitado. Contactá al administrador.';
-      err.style.display = 'block';
-      return;
-    }
-
-    if (rol === 'supervisor') {
-      document.getElementById('sup-user').textContent = '👤 ' + nombre;
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app-screen').style.display = 'none';
-      document.getElementById('supervisor-screen').style.display = 'block';
-      cargarNovedadesSupervisor();
-      return;
-    }
-
-    document.getElementById('header-user').textContent = '👤 ' + nombre;
-    document.getElementById('meta-recorredor').value = nombre;
-    mostrarWelcome(nombre);
-    const now2 = new Date();
-    const dd = String(now2.getDate()).padStart(2,'0');
-    const mm = String(now2.getMonth()+1).padStart(2,'0');
-    const yyyy = now2.getFullYear();
-    document.getElementById('meta-fecha').value = `${dd}/${mm}/${yyyy}`;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'block';
-    document.getElementById('supervisor-screen').style.display = 'none';
-    // Turno automático según la hora
-    const horaActual = new Date().getHours();
-    let turnoAuto, btnIndex;
-    if(horaActual >= 6 && horaActual < 14)       { turnoAuto = 'Mañana'; btnIndex = 0; }
-    else if(horaActual >= 14 && horaActual < 22) { turnoAuto = 'Tarde';  btnIndex = 1; }
-    else                                          { turnoAuto = 'Noche';  btnIndex = 2; }
-    const turnoBtns = document.querySelectorAll('.turno-btn');
-    turnoBtns.forEach(b => b.classList.remove('active'));
-    turnoBtns[btnIndex].classList.add('active');
-    window.turnoActual = turnoAuto;
-    const esNocheAuto = turnoAuto === 'Noche';
-    const esMañanaAuto = turnoAuto === 'Mañana';
-    document.querySelector('.container').classList.toggle('turno-noche', esNocheAuto);
-    document.getElementById('colchon-23t').style.display = esMañanaAuto ? 'block' : 'none';
-    document.getElementById('colchon-ec19').style.display = esMañanaAuto ? 'block' : 'none';
-    // Precargar últimos niveles
-    ['23T','PPA','17T','ED1'].forEach(p => cargarUltimoNivel(p));
-    cargarUltimoRegistro();
+    await iniciarConUsuario(user);
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('supervisor-screen').style.display = 'none';
-    // Resetear el botón de ingresar (por si quedó colgado)
     const btn = document.getElementById('login-btn');
     if(btn) { btn.disabled = false; btn.textContent = 'ENTRAR'; }
   }
