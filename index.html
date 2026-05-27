@@ -1586,7 +1586,7 @@ window.cerrarNovedades = function() {
   localStorage.setItem('oillog_version', VERSION_ACTUAL);
   location.reload();
 }
-import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, query, where, orderBy, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, query, where, orderBy, limit, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { firebaseConfig } from '/assets/firebase-config.js';
 
@@ -1694,7 +1694,7 @@ async function cargarUltimoNivel(planta) {
   const campoNivel = {'23T':'TK Inyector','PPA':'Nivel TK','17T':'Nivel TK','ED1':'Nivel TK'}[planta];
   if(!campoNivel) return;
   try {
-    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
+    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'), limit(1));
     const snap = await getDocs(q);
     if(snap.empty) return;
     const ultimo = snap.docs[0].data();
@@ -1904,7 +1904,7 @@ async function cargarUltimoRegistro() {
   const plantas = ['23T','17T','PPA','ED1','EC19','AGUADA','O87'];
   for(const planta of plantas) {
     try {
-      const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
+      const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'), limit(1));
       const snap = await getDocs(q);
       if(!snap.empty) ultimoRegistroPorPlanta[planta] = snap.docs[0].data();
     } catch(e) {}
