@@ -1,8 +1,8 @@
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from './firebase-init.js';
-import { showToast, mostrarWelcome } from './ui.js';
-import { cargarUltimoNivel, cargarUltimoRegistro } from './plantas.js';
+import { auth, db } from './firebase-init.js?v=20260530';
+import { showToast, mostrarWelcome } from './ui.js?v=20260530';
+import { cargarUltimoNivel, cargarUltimoRegistro } from './plantas.js?v=20260530';
 
 async function iniciarConUsuario(user) {
   let nombre, rol;

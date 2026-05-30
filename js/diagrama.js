@@ -1,6 +1,6 @@
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from './firebase-init.js';
-import { showToast, setSyncStatus } from './ui.js';
+import { auth, db } from './firebase-init.js?v=20260530';
+import { showToast, setSyncStatus } from './ui.js?v=20260530';
 
 let diagramaActual = null;
 let vistaActual = 'inteligente';
