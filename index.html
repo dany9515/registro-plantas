@@ -16,31 +16,36 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/estilos.css">
-<!-- DEBUG TEMPORAL: captura errores JS para ver en móvil sin DevTools -->
+<!-- DEBUG TEMPORAL -->
 <script>
 (function() {
   var _logs = [];
   function addLog(type, msg) {
     var time = new Date().toTimeString().slice(0,8);
-    _logs.push('[' + time + '] ' + type + ': ' + msg);
-    var el = document.getElementById('debug-output');
-    if (el) { el.value = _logs.join('\n'); el.scrollTop = el.scrollHeight; }
+    var line = '[' + time + '] ' + type + ': ' + msg;
+    _logs.push(line);
+    // panel en overlay de carga (visible si se queda pegado en "Iniciando...")
+    var ov = document.getElementById('debug-overlay-output');
+    if (ov) { ov.textContent = _logs.join('\n'); ov.scrollTop = ov.scrollHeight; }
+    // panel en login card (visible una vez que carga el login)
+    var lp = document.getElementById('debug-output');
+    if (lp) { lp.value = _logs.join('\n'); lp.scrollTop = lp.scrollHeight; }
   }
   window.onerror = function(msg, src, line, col, err) {
     addLog('ERROR', msg + (src ? ' @ ' + src.split('/').pop() + ':' + line : ''));
     return false;
   };
   window.onunhandledrejection = function(e) {
-    addLog('PROMISE', e.reason ? (e.reason.message || e.reason) : 'unhandled rejection');
+    addLog('PROMISE', e.reason ? (e.reason.message || String(e.reason)) : 'unhandled rejection');
   };
   var _origError = console.error.bind(console);
   console.error = function() {
-    addLog('console.error', Array.from(arguments).join(' '));
+    addLog('console.error', Array.from(arguments).map(String).join(' '));
     _origError.apply(console, arguments);
   };
   var _origWarn = console.warn.bind(console);
   console.warn = function() {
-    addLog('console.warn', Array.from(arguments).join(' '));
+    addLog('console.warn', Array.from(arguments).map(String).join(' '));
     _origWarn.apply(console, arguments);
   };
   window._debugAddLog = addLog;
@@ -52,6 +57,8 @@
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div class="loading-text">Iniciando...</div>
+  <!-- DEBUG TEMPORAL: errores visibles en móvil sin DevTools -->
+  <div id="debug-overlay-output" style="position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow-y:auto;background:#0a0e17;color:#7fba00;font-family:monospace;font-size:0.68rem;padding:10px;white-space:pre-wrap;border-top:1px solid #333;z-index:9999;display:block"></div>
 </div>
 
 <!-- LOGIN -->
