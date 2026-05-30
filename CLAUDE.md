@@ -4,7 +4,7 @@ PWA de registro operacional para pozos de captación y plantas de petróleo.
 Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). Modularización completa.
 
 - **Repo:** https://github.com/dany9515/registro-plantas (rama `main`)
-- **Producción:** https://oillog.operlog.com.ar (GitHub Pages + dominio propio)
+- **Producción:** https://oillog.operlog.com.ar (GitHub Pages + dominio propio, CDN Cloudflare)
 - **Firebase proyecto:** `registroplantas-7dc06`
 - **Credenciales Firebase:** `assets/firebase-config.js` (commiteado — son públicas por diseño en apps web)
 
@@ -17,7 +17,8 @@ Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). Modularización comple
 - Roles: `recorredor` (acceso completo) y `supervisor` (solo novedades)
 - Registros guardados en colección `registros`, partes nocturnos en `partes`
 - Sin backend propio — todo directo a Firestore desde el cliente
-- Entry point: `<script type="module" src="/js/main.js">` — carga todos los módulos
+- Entry point: `<script type="module" src="./js/main.js?v=YYYYMMDD">` — carga todos los módulos
+- Service Worker (`sw.js`) registrado en index.html: network-first para JS locales, cache fallback offline
 
 ### Colecciones Firestore
 
@@ -28,6 +29,9 @@ Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). Modularización comple
 | `partes` | Partes nocturnos. Campos: `fecha`, `hora`, `rec1`, `rec2`, `acumulados`, `niveles`, `quimicos`, `timestamp`, `userEmail` |
 | `diagramas` | Diagramas de turno. Campos: `mes`, `mesNombre`, `datos` (array), `timestamp`, `cargadoPor` |
 
+### Reglas Firestore
+Todas las colecciones: `allow read, write: if request.auth != null` — cualquier usuario autenticado tiene acceso completo. Verificado y correcto.
+
 ### Plantas disponibles
 `23T`, `17T`, `PPA`, `ED1`, `EC19`, `AGUADA`, `O87`
 
@@ -37,30 +41,49 @@ Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). Modularización comple
 
 ```
 css/
-  estilos.css           ← todo el CSS (296 líneas)
+  estilos.css           ← todo el CSS
 js/
   firebase-init.js      ← exports: auth, db
   ui.js                 ← exports: showToast, setSyncStatus, mostrarWelcome
   plantas.js            ← exports: cargarUltimoNivel, cargarUltimoRegistro, ultimoRegistroPorPlanta
-  supervisor.js         ← side-effect: window.cargarNovedadesSupervisor
+  supervisor.js         ← export: cargarNovedadesSupervisor + window.cargarNovedadesSupervisor (para HTML)
   auth.js               ← side-effect: onAuthStateChanged bootstrap, window.doLogin/doLogout/cambiarPassword
   parte.js              ← side-effect: window.calcTotal, cargarDatosParte, generarPartePDF, verUltimoPDF
   diagrama.js           ← side-effect: window.renderDiagrama, setVistasDiagrama, renderDiagramaSemana, irHoy, cargarDiagrama
   main.js               ← entry point: plant nav listener, window.showPlant
-index.html              ← solo HTML + <script type="module" src="/js/main.js"> (1308 líneas)
+sw.js                   ← Service Worker: network-first para JS locales (mismo origen)
+index.html              ← solo HTML + <script type="module" src="./js/main.js?v=YYYYMMDD">
 ```
 
 ### Grafo de dependencias
 ```
 main.js
   ├── plantas.js → firebase-init.js, ui.js
-  ├── supervisor.js → firebase-init.js, ui.js
-  ├── auth.js → firebase-init.js, ui.js
+  ├── supervisor.js → firebase-init.js
+  ├── auth.js → firebase-init.js, ui.js, plantas.js, supervisor.js
   ├── parte.js → firebase-init.js, ui.js, plantas.js (ultimoRegistroPorPlanta)
   └── diagrama.js → firebase-init.js, ui.js
 ```
 
 **Nota importante:** Los módulos requieren servidor local (`http://`). No funcionan con `file://`.
+
+---
+
+## Deploy y caché
+
+### Regla crítica: rutas relativas
+Todos los imports usan rutas **relativas** (`./firebase-init.js`, no `/js/firebase-init.js`). Las rutas absolutas fallan en GitHub Pages con subdirectorios y en algunos browsers móviles.
+
+### Cache busting al deployar
+Dos capas:
+1. **`?v=YYYYMMDD`** en todos los imports locales — rompe caché del CDN Cloudflare. Cambiar la fecha en cada deploy que modifique JS.
+   - En `index.html`: `src="./js/main.js?v=20260530"`
+   - En cada módulo JS: `from './firebase-init.js?v=20260530'`
+2. **Service Worker (`sw.js`)** — intercepta JS del mismo origen, siempre valida con el servidor (`cache: 'no-cache'`). Sirve desde caché si no hay red. Automático, no requiere acción manual.
+
+### Si un usuario tiene la app cacheada con código viejo
+- Primer deploy con SW: pedir al usuario que limpie caché una última vez para que el SW se instale
+- Deploys siguientes: el SW maneja todo automáticamente
 
 ---
 
@@ -117,9 +140,9 @@ main.js
 - Vista tabla: tabla completa del mes con celdas de 12hs destacadas
 - Datos hardcodeados en `JSON_PRUEBA` — pendiente cargar desde Firestore colección `diagramas`
 
-**Modularización — completada en esta sesión:**
+**Modularización — completada:**
 
-| Paso | Archivo | Commits |
+| Paso | Archivo | Commit |
 |---|---|---|
 | 1 | `css/estilos.css` | `52cf09e` |
 | 2 | `js/firebase-init.js` | `52cf09e` |
@@ -127,9 +150,38 @@ main.js
 | 4 | `js/plantas.js` | `29b6f91` |
 | 5 | `js/supervisor.js` | `29b6f91` |
 | 6 | `js/auth.js` | `29b6f91` |
-| 7 | `js/parte.js` | pendiente commit |
-| 8 | `js/diagrama.js` | pendiente commit |
-| 9 | `js/main.js` | pendiente commit |
+| 7 | `js/parte.js` | `d5d57d7` |
+| 8 | `js/diagrama.js` | `d5d57d7` |
+| 9 | `js/main.js` | `d5d57d7` |
+
+### Sesión 2026-05-30 (continuación) — deploy móvil, caché y estabilidad
+
+**Problema de rutas absolutas en móvil** (`1839d66`)
+- La app cargaba en PC pero no en celular — quedaba en "Iniciando..."
+- Causa: imports con rutas absolutas `/js/firebase-init.js` fallaban en GitHub Pages móvil
+- Fix: cambiar todas las rutas a relativas `./firebase-init.js` en los 6 módulos JS e `index.html`
+
+**Cache busting** (`bb96823`, `d553a62`)
+- Problema: browser móvil cacheaba versiones viejas de los módulos JS
+- Fix 1: `?v=YYYYMMDD` en todos los imports locales (rompe caché CDN)
+- Fix 2: Service Worker `sw.js` con network-first para JS locales (automático en deploys futuros)
+- Regla: actualizar la fecha `?v=` en cada deploy que cambie archivos JS
+
+**Diagnóstico de errores en móvil sin DevTools**
+- Técnica usada: panel de debug temporal en el `loading-overlay` (div fijo en pantalla)
+- Capturaba `window.onerror`, `onunhandledrejection`, `console.error`, `console.warn` desde `<head>`
+- Importante: el panel debe estar en el `loading-overlay`, NO en el login card — el login no se ve si los módulos fallan
+- Eliminado una vez resuelto el problema (`bb96823`)
+
+**Error `permission-denied` de Firestore**
+- Apareció en el panel de debug — era del código viejo en caché ejecutándose sin auth
+- Las reglas de Firestore son correctas (`allow read, write: if request.auth != null`)
+- Desapareció al limpiar caché + SW instalado
+
+**Fix de dependencia frágil entre módulos** (`07e751a`)
+- `auth.js` llamaba a `window.cargarNovedadesSupervisor()` dependiendo del orden de imports en `main.js`
+- Fix: `supervisor.js` ahora exporta `cargarNovedadesSupervisor`; `auth.js` la importa directamente
+- `window.cargarNovedadesSupervisor` se mantiene asignado en `supervisor.js` para los `onchange` del HTML
 
 ---
 
@@ -166,7 +218,6 @@ main.js
 
 ### Funcionalidades nuevas
 
-6. **Modo offline / Service Worker** — alta complejidad
-7. **Exportación CSV/Excel de registros** — media complejidad
-8. **Tests de funciones de cálculo** — media complejidad
-9. **Manejo de conflictos multi-usuario** — alta complejidad
+6. **Exportación CSV/Excel de registros** — media complejidad
+7. **Tests de funciones de cálculo** — media complejidad
+8. **Manejo de conflictos multi-usuario** — alta complejidad
