@@ -1,5 +1,5 @@
 import { collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { db } from '/js/firebase-init.js';
+import { db } from './firebase-init.js';
 
 window.cargarNovedadesSupervisor = async function() {
   const fechaVal = document.getElementById('sup-fecha').value;

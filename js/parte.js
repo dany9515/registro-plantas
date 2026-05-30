@@ -1,7 +1,7 @@
 import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from '/js/firebase-init.js';
-import { showToast, setSyncStatus } from '/js/ui.js';
-import { ultimoRegistroPorPlanta } from '/js/plantas.js';
+import { auth, db } from './firebase-init.js';
+import { showToast, setSyncStatus } from './ui.js';
+import { ultimoRegistroPorPlanta } from './plantas.js';
 
 function calcTotal(campo) {
   const ant = parseFloat(document.getElementById('p-'+campo+'-ant')?.value);
