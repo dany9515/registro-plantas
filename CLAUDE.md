@@ -105,9 +105,9 @@ Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). En proceso de modulari
 | 1 | `css/estilos.css` | ✅ Extraído y verificado |
 | 2 | `js/firebase-init.js` | ✅ Extraído y verificado |
 | 3 | `js/ui.js` | ✅ Extraído y verificado |
-| 4 | `js/plantas.js` | ⏳ Pendiente |
-| 5 | `js/supervisor.js` | ⏳ Pendiente |
-| 6 | `js/auth.js` | ⏳ Pendiente |
+| 4 | `js/plantas.js` | ✅ Extraído y verificado |
+| 5 | `js/supervisor.js` | ✅ Extraído y verificado |
+| 6 | `js/auth.js` | ✅ Extraído y verificado |
 | 7 | `js/parte.js` | ⏳ Pendiente |
 | 8 | `js/diagrama.js` | ⏳ Pendiente |
 | 9 | `js/main.js` (entry point) | ⏳ Pendiente |
@@ -119,23 +119,26 @@ css/
 js/
   firebase-init.js    ← exports: auth, db
   ui.js               ← exports: showToast, setSyncStatus, mostrarWelcome
-index.html            ← ~2808 líneas (bajó de 3315)
+  plantas.js          ← exports: cargarUltimoNivel, cargarUltimoRegistro
+  supervisor.js       ← side-effect: window.cargarNovedadesSupervisor
+  auth.js             ← side-effect: onAuthStateChanged bootstrap, window.doLogin/doLogout/cambiarPassword
+index.html            ← 1881 líneas (bajó de 3315)
 ```
 
-**Dependencias de imports ya establecidas:**
+**Dependencias de imports en index.html `<script type="module">`:**
 ```
-index.html <script type="module">
-  ├── import { auth, db } from '/js/firebase-init.js'
-  └── import { showToast, setSyncStatus, mostrarWelcome } from '/js/ui.js'
+import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from firebase-firestore
+import { auth, db } from '/js/firebase-init.js'
+import { showToast, setSyncStatus } from '/js/ui.js'
+import { cargarUltimoNivel } from '/js/plantas.js'
+import '/js/supervisor.js'
+import '/js/auth.js'
 ```
 
 **Lo que queda en `index.html` pendiente de extraer:**
-- `iniciarConUsuario`, `doLogin`, `doLogout` → irán a `js/auth.js`
-- `cargarUltimoNivel`, `cargarUltimoRegistro`, `guardarPlanta`, `verHistorial`, etc. → `js/plantas.js`
-- `cargarNovedadesSupervisor` → `js/supervisor.js`
 - Parte nocturno completo → `js/parte.js`
 - Diagrama de turnos completo → `js/diagrama.js`
-- `plantMap`, `showPlant`, `onAuthStateChanged`, plant nav → `js/main.js`
+- `plantMap`, `showPlant`, plant nav listener → `js/main.js`
 
 ---
 
@@ -145,15 +148,19 @@ index.html <script type="module">
 
 | Función | Archivo | Qué hace |
 |---|---|---|
-| `iniciarConUsuario(user)` | index.html | Carga datos del usuario desde Firestore, maneja error de red con retry |
-| `cargarUltimoNivel(planta)` | index.html | Trae el nivel más reciente de una planta (limit 1) |
-| `cargarUltimoRegistro()` | index.html | Trae el último registro de cada planta (7 queries en serie, limit 1 c/u) |
-| `guardarPlanta(planta)` | index.html | Guarda registro en Firestore y limpia el formulario |
-| `verHistorial(planta)` | index.html | Abre modal con últimas 48hs, cursor-based pagination |
-| `cargarMasHistorial(planta)` | index.html | Carga 20 registros más usando startAfter |
-| `editarRegistro(docId, planta)` | index.html | Abre modal de edición (hace query completa — pendiente de optimizar) |
+| `iniciarConUsuario(user)` | js/auth.js | Carga datos del usuario desde Firestore, maneja error de red con retry |
+| `onAuthStateChanged` bootstrap | js/auth.js | Punto de entrada de la app — detecta login/logout |
+| `doLogin()` | js/auth.js | Login con email/password |
+| `doLogout()` | js/auth.js | Cierre de sesión con confirmación |
+| `cambiarPassword()` | js/auth.js | Reautentica y cambia contraseña |
+| `cargarUltimoNivel(planta)` | js/plantas.js | Trae el nivel más reciente de una planta (limit 1) |
+| `cargarUltimoRegistro()` | js/plantas.js | Trae el último registro de cada planta (7 queries en serie, limit 1 c/u) |
+| `guardarPlanta(planta)` | js/plantas.js | Guarda registro en Firestore y limpia el formulario |
+| `verHistorial(planta)` | js/plantas.js | Abre modal con últimas 48hs, cursor-based pagination |
+| `cargarMasHistorial(planta)` | js/plantas.js | Carga 20 registros más usando startAfter |
+| `editarRegistro(docId, planta)` | js/plantas.js | Abre modal de edición (hace query completa — pendiente de optimizar) |
 | `generarPartePDF()` | index.html | Guarda parte en Firestore y genera HTML para imprimir/compartir |
-| `cargarNovedadesSupervisor()` | index.html | Filtra novedades por fecha y planta (descarga toda la colección — pendiente de limitar) |
+| `cargarNovedadesSupervisor()` | js/supervisor.js | Filtra novedades por fecha y planta (descarga toda la colección — pendiente de limitar) |
 | `showToast(msg, isError)` | js/ui.js | Toast de notificación |
 | `setSyncStatus(type, text)` | js/ui.js | Indicador online/offline/syncing del header |
 | `mostrarWelcome(nombre)` | js/ui.js | Splash de bienvenida (1 vez por día) |
