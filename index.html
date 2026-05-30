@@ -16,6 +16,36 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/estilos.css">
+<!-- DEBUG TEMPORAL: captura errores JS para ver en móvil sin DevTools -->
+<script>
+(function() {
+  var _logs = [];
+  function addLog(type, msg) {
+    var time = new Date().toTimeString().slice(0,8);
+    _logs.push('[' + time + '] ' + type + ': ' + msg);
+    var el = document.getElementById('debug-output');
+    if (el) { el.value = _logs.join('\n'); el.scrollTop = el.scrollHeight; }
+  }
+  window.onerror = function(msg, src, line, col, err) {
+    addLog('ERROR', msg + (src ? ' @ ' + src.split('/').pop() + ':' + line : ''));
+    return false;
+  };
+  window.onunhandledrejection = function(e) {
+    addLog('PROMISE', e.reason ? (e.reason.message || e.reason) : 'unhandled rejection');
+  };
+  var _origError = console.error.bind(console);
+  console.error = function() {
+    addLog('console.error', Array.from(arguments).join(' '));
+    _origError.apply(console, arguments);
+  };
+  var _origWarn = console.warn.bind(console);
+  console.warn = function() {
+    addLog('console.warn', Array.from(arguments).join(' '));
+    _origWarn.apply(console, arguments);
+  };
+  window._debugAddLog = addLog;
+})();
+</script>
 </head>
 <body>
 
@@ -77,6 +107,14 @@
     </div>
     <button class="login-btn" id="login-btn" onclick="doLogin()">ENTRAR</button>
     <div class="login-error" id="login-error"></div>
+    <!-- DEBUG TEMPORAL -->
+    <div style="margin-top:16px;text-align:center">
+      <button type="button" onclick="document.getElementById('debug-panel').style.display=document.getElementById('debug-panel').style.display==='none'?'block':'none'" style="background:none;border:1px solid #333;border-radius:6px;color:#556;font-family:monospace;font-size:0.7rem;padding:4px 10px;cursor:pointer">🐛 debug</button>
+    </div>
+    <div id="debug-panel" style="display:none;margin-top:8px">
+      <textarea id="debug-output" readonly style="width:100%;height:160px;background:#0a0e17;color:#7fba00;border:1px solid #333;border-radius:6px;font-family:monospace;font-size:0.7rem;padding:8px;box-sizing:border-box;resize:vertical" placeholder="Sin errores capturados..."></textarea>
+      <button type="button" onclick="document.getElementById('debug-output').value='';window._debugAddLog&&window._debugAddLog('INFO','log limpiado')" style="margin-top:4px;background:none;border:1px solid #333;border-radius:6px;color:#556;font-family:monospace;font-size:0.65rem;padding:3px 8px;cursor:pointer">limpiar</button>
+    </div>
   </div>
   <div style="margin-top:24px;text-align:center;font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);letter-spacing:1px;line-height:1.6;opacity:0.8;position:relative;z-index:2">
     <span style="color:var(--accent);letter-spacing:2px">by OperLog™</span><br>
