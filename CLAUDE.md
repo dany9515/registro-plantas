@@ -1,7 +1,7 @@
 # OilLog — Contexto del proyecto
 
 PWA de registro operacional para pozos de captación y plantas de petróleo.
-Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). En proceso de modularización — ver sección 2026-05-30.
+Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). Modularización completa.
 
 - **Repo:** https://github.com/dany9515/registro-plantas (rama `main`)
 - **Producción:** https://oillog.operlog.com.ar (GitHub Pages + dominio propio)
@@ -17,6 +17,7 @@ Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). En proceso de modulari
 - Roles: `recorredor` (acceso completo) y `supervisor` (solo novedades)
 - Registros guardados en colección `registros`, partes nocturnos en `partes`
 - Sin backend propio — todo directo a Firestore desde el cliente
+- Entry point: `<script type="module" src="/js/main.js">` — carga todos los módulos
 
 ### Colecciones Firestore
 
@@ -25,126 +26,45 @@ Stack: HTML/CSS/JS vanilla + Firebase (Auth + Firestore). En proceso de modulari
 | `usuarios` | Documento por UID con campos `nombre` y `rol` |
 | `registros` | Un doc por guardado de planta. Campos: `planta`, `fecha`, `turno`, `vuelta`, `hora`, `recorredor`, `datos` (objeto), `timestamp`, `userEmail`, `editado` |
 | `partes` | Partes nocturnos. Campos: `fecha`, `hora`, `rec1`, `rec2`, `acumulados`, `niveles`, `quimicos`, `timestamp`, `userEmail` |
+| `diagramas` | Diagramas de turno. Campos: `mes`, `mesNombre`, `datos` (array), `timestamp`, `cargadoPor` |
 
 ### Plantas disponibles
 `23T`, `17T`, `PPA`, `ED1`, `EC19`, `AGUADA`, `O87`
 
 ---
 
-## Sesión 2026-05-26 — autenticación dinámica y deploy
+## Estructura de archivos
 
-- `onAuthStateChanged` migrado a async: lee nombre y rol desde Firestore `usuarios/{uid}`
-- Eliminados objetos hardcodeados `recorredores` y `supervisores` — Firestore es la única fuente de verdad
-- Si UID no existe en Firestore: cierra sesión y muestra "Usuario no habilitado"
-- `assets/firebase-config.js` sacado del `.gitignore` y commiteado (necesario para GitHub Pages)
-- PDF del parte nocturno: corregidos bugs de encoding, encabezados y fila TOTAL INTERPLANTAS
-- Corrección de etiquetas del formulario: "Ingreso 17T", eliminación de "A Planta PT"
-
----
-
-## Sesión 2026-05-27 — performance, bugs y UX
-
-### Commits realizados
-
-| Hash | Descripción |
-|---|---|
-| `8312f74` | `limit(1)` en `cargarUltimoNivel` y `cargarUltimoRegistro` — evita descargar toda la colección al iniciar |
-| `4dd7bde` | Fix logout inesperado por error de red en `onAuthStateChanged` |
-| `05582c9` | Historial con paginación por cursor (`startAfter`) y botón "Ver registros anteriores" |
-| `6f9aebf` | Pantalla supervisor: input date + selector de planta reemplazan el selector Hoy/Ayer/Semana |
-
-### Detalle de cambios
-
-**`limit(1)` en queries de nivel** (`8312f74`)
-- `cargarUltimoNivel` y `cargarUltimoRegistro` traían toda la colección para usar solo el primer doc
-- Agregado `limit(1)` — reduce lecturas a 1 doc por planta en lugar de N
-- Agregado `limit` al import de Firestore
-
-**Fix logout por error de red** (`4dd7bde`)
-- El `catch(e) {}` vacío en `onAuthStateChanged` mezclaba "UID no existe" con "Firestore no respondió"
-- Extraída función `iniciarConUsuario(user)` que puede llamarse a sí misma al volver la conexión
-- Si `getDoc` lanza excepción (red): muestra "Sin conexión. Reintentando..." + `window.addEventListener('online', ..., {once:true})`
-- Si `getDoc` resuelve pero el doc no existe: cierra sesión con "Usuario no habilitado"
-
-**Historial con paginación por cursor** (`05582c9`)
-- Antes: una query sin límite que descargaba toda la historia de cada planta
-- Ahora: carga inicial de las últimas 48hs; cada click en "Ver registros anteriores" usa `startAfter(lastDoc) + limit(20)`
-- Si las 48hs están vacías: muestra el botón para buscar registros anteriores sin filtro de fecha
-- Si no hay más registros: muestra "No hay registros anteriores" en lugar del botón
-- Agregado `startAfter` al import de Firestore
-- Agregado CSS `.historial-cargar-mas`
-
-**Pantalla supervisor** (`6f9aebf`)
-- Reemplazado `<select>` Hoy/Ayer/Semana por `<input type="date">` con `color-scheme:dark`
-- Agregado `<select id="sup-planta">` con opciones: Todas, 23T, 17T, PPA, ED1, EC19, AGUADA, O87
-- Fecha se inicializa en hoy automáticamente al loguear como supervisor
-- Filtros combinables: fecha exacta AND planta (si es "Todas", no filtra por planta)
-- Conversión interna YYYY-MM-DD → DD/MM/YYYY para comparar contra `r.fecha`
-
----
-
-## Sesión 2026-05-30 — diagrama de turnos + modularización (en curso)
-
-### Cambios de funcionalidad
-
-**Diagrama de turnos** (`c7da44e`)
-- Nueva pestaña `📅 DIAGRAMA` en la nav de plantas
-- Vista inteligente: muestra hoy + 2 días siguientes, turno propio, compañeros agrupados por categoría, badge "puede cubrir" para los de FRANCO con descanso válido
-- Vista tabla: tabla completa del mes; celdas de 12hs (`6-12`, `18-12`) con fondo intenso + borde `box-shadow inset` + negrita
-- Datos hardcodeados en `JSON_PRUEBA` (pendiente: cargar desde Firestore colección `diagramas`)
-- Carga admin oculta para subir JSON del diagrama a Firestore
-
-### Modularización — estado al cierre de sesión
-
-**Estrategia:** un archivo por vez, probando entre cada paso. Requiere servidor local (no funciona con `file://`).
-
-**Plan completo (9 pasos):**
-
-| Paso | Archivo | Estado |
-|---|---|---|
-| 1 | `css/estilos.css` | ✅ Extraído y verificado |
-| 2 | `js/firebase-init.js` | ✅ Extraído y verificado |
-| 3 | `js/ui.js` | ✅ Extraído y verificado |
-| 4 | `js/plantas.js` | ✅ Extraído y verificado |
-| 5 | `js/supervisor.js` | ✅ Extraído y verificado |
-| 6 | `js/auth.js` | ✅ Extraído y verificado |
-| 7 | `js/parte.js` | ⏳ Pendiente |
-| 8 | `js/diagrama.js` | ⏳ Pendiente |
-| 9 | `js/main.js` (entry point) | ⏳ Pendiente |
-
-**Estructura actual de archivos:**
 ```
 css/
-  estilos.css         ← 296 líneas (todo el CSS)
+  estilos.css           ← todo el CSS (296 líneas)
 js/
-  firebase-init.js    ← exports: auth, db
-  ui.js               ← exports: showToast, setSyncStatus, mostrarWelcome
-  plantas.js          ← exports: cargarUltimoNivel, cargarUltimoRegistro
-  supervisor.js       ← side-effect: window.cargarNovedadesSupervisor
-  auth.js             ← side-effect: onAuthStateChanged bootstrap, window.doLogin/doLogout/cambiarPassword
-index.html            ← 1881 líneas (bajó de 3315)
+  firebase-init.js      ← exports: auth, db
+  ui.js                 ← exports: showToast, setSyncStatus, mostrarWelcome
+  plantas.js            ← exports: cargarUltimoNivel, cargarUltimoRegistro, ultimoRegistroPorPlanta
+  supervisor.js         ← side-effect: window.cargarNovedadesSupervisor
+  auth.js               ← side-effect: onAuthStateChanged bootstrap, window.doLogin/doLogout/cambiarPassword
+  parte.js              ← side-effect: window.calcTotal, cargarDatosParte, generarPartePDF, verUltimoPDF
+  diagrama.js           ← side-effect: window.renderDiagrama, setVistasDiagrama, renderDiagramaSemana, irHoy, cargarDiagrama
+  main.js               ← entry point: plant nav listener, window.showPlant
+index.html              ← solo HTML + <script type="module" src="/js/main.js"> (1308 líneas)
 ```
 
-**Dependencias de imports en index.html `<script type="module">`:**
+### Grafo de dependencias
 ```
-import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from firebase-firestore
-import { auth, db } from '/js/firebase-init.js'
-import { showToast, setSyncStatus } from '/js/ui.js'
-import { cargarUltimoNivel } from '/js/plantas.js'
-import '/js/supervisor.js'
-import '/js/auth.js'
+main.js
+  ├── plantas.js → firebase-init.js, ui.js
+  ├── supervisor.js → firebase-init.js, ui.js
+  ├── auth.js → firebase-init.js, ui.js
+  ├── parte.js → firebase-init.js, ui.js, plantas.js (ultimoRegistroPorPlanta)
+  └── diagrama.js → firebase-init.js, ui.js
 ```
 
-**Lo que queda en `index.html` pendiente de extraer:**
-- Parte nocturno completo → `js/parte.js`
-- Diagrama de turnos completo → `js/diagrama.js`
-- `plantMap`, `showPlant`, plant nav listener → `js/main.js`
+**Nota importante:** Los módulos requieren servidor local (`http://`). No funcionan con `file://`.
 
 ---
 
-## Estado actual del código
-
-### Funciones clave
+## Funciones clave
 
 | Función | Archivo | Qué hace |
 |---|---|---|
@@ -159,43 +79,90 @@ import '/js/auth.js'
 | `verHistorial(planta)` | js/plantas.js | Abre modal con últimas 48hs, cursor-based pagination |
 | `cargarMasHistorial(planta)` | js/plantas.js | Carga 20 registros más usando startAfter |
 | `editarRegistro(docId, planta)` | js/plantas.js | Abre modal de edición (hace query completa — pendiente de optimizar) |
-| `generarPartePDF()` | index.html | Guarda parte en Firestore y genera HTML para imprimir/compartir |
 | `cargarNovedadesSupervisor()` | js/supervisor.js | Filtra novedades por fecha y planta (descarga toda la colección — pendiente de limitar) |
+| `cargarDatosParte()` | js/parte.js | Carga automáticos al abrir el parte (acumulados, químicos, cierre micro) |
+| `generarPartePDF()` | js/parte.js | Guarda parte en Firestore y genera HTML para imprimir/compartir |
+| `calcTotal(campo)` | js/parte.js | Calcula total (actual − anterior) en una fila del parte; llamado desde oninput HTML |
+| `renderDiagrama()` | js/diagrama.js | Inicializa el diagrama (carga JSON_PRUEBA, setea fecha, muestra vista inteligente) |
+| `setVistasDiagrama(vista)` | js/diagrama.js | Alterna entre vista inteligente y tabla completa |
+| `renderDiagramaSemana()` | js/diagrama.js | Renderiza los 3 días desde la fecha seleccionada |
+| `cargarDiagrama()` | js/diagrama.js | Admin: sube JSON de diagrama a Firestore colección `diagramas` |
 | `showToast(msg, isError)` | js/ui.js | Toast de notificación |
 | `setSyncStatus(type, text)` | js/ui.js | Indicador online/offline/syncing del header |
 | `mostrarWelcome(nombre)` | js/ui.js | Splash de bienvenida (1 vez por día) |
+| `showPlant(id, btn)` | js/main.js | Navega entre paneles de plantas |
+
+---
+
+## Historial de sesiones
+
+### Sesión 2026-05-26 — autenticación dinámica y deploy
+- `onAuthStateChanged` migrado a async: lee nombre y rol desde Firestore `usuarios/{uid}`
+- Eliminados objetos hardcodeados — Firestore es la única fuente de verdad
+- Si UID no existe en Firestore: cierra sesión y muestra "Usuario no habilitado"
+- `assets/firebase-config.js` commiteado (necesario para GitHub Pages)
+- PDF del parte nocturno: corregidos bugs de encoding, encabezados y fila TOTAL INTERPLANTAS
+
+### Sesión 2026-05-27 — performance, bugs y UX
+- `limit(1)` en `cargarUltimoNivel` y `cargarUltimoRegistro` — evita descargar toda la colección
+- Fix logout inesperado: separado "UID no existe" de "Firestore no respondió", retry automático al volver online
+- Historial con paginación por cursor (`startAfter`): carga inicial 48hs, luego lotes de 20
+- Pantalla supervisor: `<input type="date">` + selector de planta en lugar de Hoy/Ayer/Semana
+
+### Sesión 2026-05-30 — diagrama de turnos + modularización completa
+
+**Diagrama de turnos** (`c7da44e`)
+- Nueva pestaña `📅 DIAGRAMA` en la nav
+- Vista inteligente: hoy + 2 días, turno propio, compañeros por categoría, badge "puede cubrir"
+- Vista tabla: tabla completa del mes con celdas de 12hs destacadas
+- Datos hardcodeados en `JSON_PRUEBA` — pendiente cargar desde Firestore colección `diagramas`
+
+**Modularización — completada en esta sesión:**
+
+| Paso | Archivo | Commits |
+|---|---|---|
+| 1 | `css/estilos.css` | `52cf09e` |
+| 2 | `js/firebase-init.js` | `52cf09e` |
+| 3 | `js/ui.js` | `52cf09e` |
+| 4 | `js/plantas.js` | `29b6f91` |
+| 5 | `js/supervisor.js` | `29b6f91` |
+| 6 | `js/auth.js` | `29b6f91` |
+| 7 | `js/parte.js` | pendiente commit |
+| 8 | `js/diagrama.js` | pendiente commit |
+| 9 | `js/main.js` | pendiente commit |
 
 ---
 
 ## Pendientes — ordenados por prioridad
 
-### Modularización (en curso)
-- Continuar desde Paso 4: `js/plantas.js` — ver tabla de estado arriba
-
 ### Mejoras técnicas (rápidas, bajo riesgo)
 
-1. **`cargarUltimoRegistro` y `cargarAcumuladosActuales` en serie → `Promise.all`**
-   - 7 + 4 queries con `await` en un `for...of` → van de a una
+1. **`cargarUltimoRegistro` en serie → `Promise.all`**
+   - 7 queries con `await` en `for...of` → van de a una
    - Cambiar a `Promise.all(plantas.map(...))` → van en paralelo
+   - Archivo: `js/plantas.js` — función `cargarUltimoRegistro`
    - Impacto: login ~1s más rápido
 
 2. **`editarRegistro` usa query completa para buscar un doc por ID**
    - Hace `getDocs(query(...where planta==X...))` y busca el ID en el array
    - Cambiar a `getDoc(doc(db,'registros',docId))` directo
+   - Archivo: `js/plantas.js` — función `editarRegistro`
    - Una línea de cambio, 10× más rápido
 
 3. **`cargarNovedadesSupervisor` sin límite**
    - Descarga toda la colección `registros` sin `limit`
    - Agregar `limit(200)` como techo razonable
-   - Impacto creciente con el tiempo
+   - Archivo: `js/supervisor.js`
 
 4. **XSS leve en historial**
    - Campo `Novedades` se inserta como `innerHTML` sin escapar
+   - Archivo: `js/plantas.js` — función `renderHistorial`
    - Riesgo bajo (sistema interno), pero vale corregir
 
-5. **Diagrama: cargar desde Firestore en lugar de JSON_PRUEBA hardcodeado**
-   - `renderDiagrama` actualmente usa datos estáticos
+5. **Diagrama: cargar desde Firestore en lugar de `JSON_PRUEBA` hardcodeado**
+   - `renderDiagrama` usa datos estáticos
    - Leer de colección `diagramas`, ordenar por `timestamp desc`, tomar el más reciente
+   - Archivo: `js/diagrama.js` — función `renderDiagrama`
 
 ### Funcionalidades nuevas
 

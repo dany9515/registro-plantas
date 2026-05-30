@@ -106,7 +106,7 @@ function setPileta(panelId, nombre, val) {
 }
 
 // ── Cache último registro por planta ────────────────────────────────────────
-let ultimoRegistroPorPlanta = {};
+export let ultimoRegistroPorPlanta = {};
 
 export async function cargarUltimoRegistro() {
   const plantas = ['23T','17T','PPA','ED1','EC19','AGUADA','O87'];
