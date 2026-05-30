@@ -3,6 +3,7 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase
 import { auth, db } from './firebase-init.js?v=20260530';
 import { showToast, mostrarWelcome } from './ui.js?v=20260530';
 import { cargarUltimoNivel, cargarUltimoRegistro } from './plantas.js?v=20260530';
+import { cargarNovedadesSupervisor } from './supervisor.js?v=20260530';
 
 async function iniciarConUsuario(user) {
   let nombre, rol;
@@ -44,7 +45,7 @@ async function iniciarConUsuario(user) {
     const mm = String(hoy.getMonth()+1).padStart(2,'0');
     const dd = String(hoy.getDate()).padStart(2,'0');
     document.getElementById('sup-fecha').value = `${yyyy}-${mm}-${dd}`;
-    window.cargarNovedadesSupervisor();
+    cargarNovedadesSupervisor();
     return;
   }
 

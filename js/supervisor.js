@@ -1,7 +1,7 @@
 import { collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { db } from './firebase-init.js?v=20260530';
 
-window.cargarNovedadesSupervisor = async function() {
+export async function cargarNovedadesSupervisor() {
   const fechaVal = document.getElementById('sup-fecha').value;
   const plantaFiltro = document.getElementById('sup-planta').value;
   const container = document.getElementById('sup-novedades-container');
@@ -51,4 +51,6 @@ window.cargarNovedadesSupervisor = async function() {
     console.error(e);
     container.innerHTML = '<div class="no-registros">❌ Error al cargar. Intentá de nuevo.</div>';
   }
-};
+}
+
+window.cargarNovedadesSupervisor = cargarNovedadesSupervisor;
