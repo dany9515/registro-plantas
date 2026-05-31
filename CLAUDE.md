@@ -49,7 +49,7 @@ js/
   supervisor.js         ← export: cargarNovedadesSupervisor + window.cargarNovedadesSupervisor (para HTML)
   auth.js               ← side-effect: onAuthStateChanged bootstrap, window.doLogin/doLogout/cambiarPassword
   parte.js              ← side-effect: window.calcTotal, cargarDatosParte, generarPartePDF, verUltimoPDF
-  diagrama.js           ← side-effect: window.renderDiagrama, setVistasDiagrama, renderDiagramaSemana, irHoy, cargarDiagrama
+  diagrama.js           ← side-effect: window.renderDiagrama, setVistasDiagrama, renderDiagramaSemana, irHoy, cargarDiagrama, eliminarDiagrama
   main.js               ← entry point: plant nav listener, window.showPlant
 sw.js                   ← Service Worker: network-first para JS locales (mismo origen)
 index.html              ← solo HTML + <script type="module" src="./js/main.js?v=YYYYMMDD">
@@ -77,8 +77,8 @@ Todos los imports usan rutas **relativas** (`./firebase-init.js`, no `/js/fireba
 ### Cache busting al deployar
 Dos capas:
 1. **`?v=YYYYMMDD`** en todos los imports locales — rompe caché del CDN Cloudflare. Cambiar la fecha en cada deploy que modifique JS.
-   - En `index.html`: `src="./js/main.js?v=20260530"`
-   - En cada módulo JS: `from './firebase-init.js?v=20260530'`
+   - En `index.html`: `src="./js/main.js?v=20260531"`
+   - En cada módulo JS: `from './firebase-init.js?v=20260531'`
 2. **Service Worker (`sw.js`)** — intercepta JS del mismo origen, siempre valida con el servidor (`cache: 'no-cache'`). Sirve desde caché si no hay red. Automático, no requiere acción manual.
 
 ### Si un usuario tiene la app cacheada con código viejo
@@ -106,10 +106,11 @@ Dos capas:
 | `cargarDatosParte()` | js/parte.js | Carga automáticos al abrir el parte (acumulados, químicos, cierre micro) |
 | `generarPartePDF()` | js/parte.js | Guarda parte en Firestore y genera HTML para imprimir/compartir |
 | `calcTotal(campo)` | js/parte.js | Calcula total (actual − anterior) en una fila del parte; llamado desde oninput HTML |
-| `renderDiagrama()` | js/diagrama.js | Inicializa el diagrama (carga JSON_PRUEBA, setea fecha, muestra vista inteligente) |
+| `renderDiagrama()` | js/diagrama.js | Inicializa el diagrama: lee Firestore (más reciente), setea fecha, muestra vista inteligente. Si no hay datos muestra "Sin diagrama cargado" |
 | `setVistasDiagrama(vista)` | js/diagrama.js | Alterna entre vista inteligente y tabla completa |
 | `renderDiagramaSemana()` | js/diagrama.js | Renderiza los 3 días desde la fecha seleccionada |
 | `cargarDiagrama()` | js/diagrama.js | Admin: sube JSON de diagrama a Firestore colección `diagramas` |
+| `eliminarDiagrama()` | js/diagrama.js | Admin: elimina el documento más reciente de `diagramas` y muestra "Sin diagrama cargado" |
 | `showToast(msg, isError)` | js/ui.js | Toast de notificación |
 | `setSyncStatus(type, text)` | js/ui.js | Indicador online/offline/syncing del header |
 | `mostrarWelcome(nombre)` | js/ui.js | Splash de bienvenida (1 vez por día) |
@@ -138,7 +139,7 @@ Dos capas:
 - Nueva pestaña `📅 DIAGRAMA` en la nav
 - Vista inteligente: hoy + 2 días, turno propio, compañeros por categoría, badge "puede cubrir"
 - Vista tabla: tabla completa del mes con celdas de 12hs destacadas
-- Datos hardcodeados en `JSON_PRUEBA` — pendiente cargar desde Firestore colección `diagramas`
+- ~~Datos hardcodeados en `JSON_PRUEBA`~~ — resuelto en sesión 2026-05-31
 
 **Modularización — completada:**
 
@@ -153,6 +154,16 @@ Dos capas:
 | 7 | `js/parte.js` | `d5d57d7` |
 | 8 | `js/diagrama.js` | `d5d57d7` |
 | 9 | `js/main.js` | `d5d57d7` |
+
+### Sesión 2026-05-31 — diagrama conectado a Firestore (`8d5fba5`)
+
+- `renderDiagrama()` ya no usa `JSON_PRUEBA` hardcodeado — siempre lee Firestore con `orderBy('timestamp','desc'), limit(1)`
+- Si la colección `diagramas` está vacía (o el doc fue borrado), ambas vistas muestran "Sin diagrama cargado" en lugar de datos viejos
+- Nueva función `eliminarDiagrama()`: solo visible para admin, elimina el doc más reciente por ID y limpia la vista
+- `diagramaActualId` trackea el ID del doc cargado para poder eliminarlo sin hacer una segunda query
+- Cache busting: todos los imports actualizados a `v=20260531`
+
+---
 
 ### Sesión 2026-05-30 (continuación) — deploy móvil, caché y estabilidad
 
@@ -211,13 +222,8 @@ Dos capas:
    - Archivo: `js/plantas.js` — función `renderHistorial`
    - Riesgo bajo (sistema interno), pero vale corregir
 
-5. **Diagrama: cargar desde Firestore en lugar de `JSON_PRUEBA` hardcodeado**
-   - `renderDiagrama` usa datos estáticos
-   - Leer de colección `diagramas`, ordenar por `timestamp desc`, tomar el más reciente
-   - Archivo: `js/diagrama.js` — función `renderDiagrama`
-
 ### Funcionalidades nuevas
 
-6. **Exportación CSV/Excel de registros** — media complejidad
-7. **Tests de funciones de cálculo** — media complejidad
-8. **Manejo de conflictos multi-usuario** — alta complejidad
+5. **Exportación CSV/Excel de registros** — media complejidad
+6. **Tests de funciones de cálculo** — media complejidad
+7. **Manejo de conflictos multi-usuario** — alta complejidad
