@@ -1,8 +1,9 @@
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from './firebase-init.js?v=20260530';
-import { showToast, setSyncStatus } from './ui.js?v=20260530';
+import { collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, db } from './firebase-init.js?v=20260531';
+import { showToast, setSyncStatus } from './ui.js?v=20260531';
 
 let diagramaActual = null;
+let diagramaActualId = null;
 let vistaActual = 'inteligente';
 
 const DIAS_SEMANA = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -19,17 +20,6 @@ const HORA_FIN_TURNO = {
   'FT12': 18,
 };
 
-const JSON_PRUEBA = [
-  {"nombre":"JUAREZ HUGO","dias":{"22":"F","23":"B","24":"B","25":"B","26":"B","27":"B","28":"B","29":"B","30":"B","31":"B","1":"B","2":"B","3":"B","4":"B","5":"B","6":"B"}},
-  {"nombre":"ZAMBRANO RICHARD","dias":{"22":"14","23":"6","24":"6","25":"6","26":"6","27":"F","28":"F","29":"14","30":"14","31":"14","1":"14","2":"F","3":"F","4":"6","5":"6","6":"6"}},
-  {"nombre":"RODRIGUEZ MAXIMILIANO","dias":{"22":"6","23":"F","24":"6","25":"22","26":"22","27":"22","28":"22","29":"F","30":"F","31":"6","1":"6","2":"6","3":"6","4":"F","5":"F","6":"22"}},
-  {"nombre":"FUENTES DAVID","dias":{"22":"22","23":"14","24":"F","25":"F","26":"F","27":"6","28":"6","29":"6","30":"6","31":"F","1":"F","2":"14","3":"14","4":"14","5":"14","6":"F"}},
-  {"nombre":"NIÑO LEANDRO","dias":{"22":"22","23":"22","24":"22","25":"F","26":"F","27":"14","28":"14","29":"14","30":"14","31":"14","1":"14","2":"F","3":"F","4":"6","5":"6","6":"6"}},
-  {"nombre":"ESPINOZA GABRIEL","dias":{"22":"F","23":"F","24":"6","25":"22","26":"22","27":"22","28":"22","29":"22","30":"22","31":"F","1":"F","2":"14","3":"14","4":"14","5":"14","6":"14"}},
-  {"nombre":"AGUILAR DANIEL","dias":{}},
-  {"nombre":"MEDINA CARLOS","dias":{"22":"6","23":"6","24":"F","25":"6","26":"6","27":"6","28":"6","29":"F","30":"F","31":"22","1":"22","2":"22","3":"22","4":"22","5":"22","6":"F"}},
-  {"nombre":"BARRIONUEVO MARCELO","dias":{"22":"14","23":"14","24":"14","25":"14","26":"14","27":"F","28":"F","29":"6","30":"6","31":"6","1":"6","2":"6","3":"6","4":"F","5":"F","6":"22"}}
-];
 
 const CFG = {
   MANANA:     { emoji:'☀️',  label:'Mañana 8hs (06-14)',    color:'#38bdf8', bg:'rgba(56,189,248,0.1)',   estrabajo:true  },
@@ -117,10 +107,21 @@ function setVistasDiagrama(vista) {
 window.setVistasDiagrama = setVistasDiagrama;
 
 async function renderDiagrama() {
-  diagramaActual = { datos: JSON_PRUEBA, mesNombre: 'Mayo / Junio 2026' };
   const hoy = new Date().toISOString().split('T')[0];
   document.getElementById('diagrama-fecha-sel').value = hoy;
   document.getElementById('diagrama-carga-section').style.display = esAdmin() ? 'block' : 'none';
+  diagramaActual = null;
+  diagramaActualId = null;
+  try {
+    const q = query(collection(db, 'diagramas'), orderBy('timestamp', 'desc'), limit(1));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      diagramaActual = snap.docs[0].data();
+      diagramaActualId = snap.docs[0].id;
+    }
+  } catch(e) {
+    console.error('Error al leer diagrama:', e);
+  }
   setVistasDiagrama('inteligente');
 }
 window.renderDiagrama = renderDiagrama;
@@ -132,7 +133,11 @@ function irHoy() {
 window.irHoy = irHoy;
 
 function renderDiagramaSemana() {
-  if(!diagramaActual) return;
+  if(!diagramaActual) {
+    document.getElementById('diagrama-semana-container').innerHTML =
+      `<div style="text-align:center;padding:40px 16px;font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">Sin diagrama cargado</div>`;
+    return;
+  }
   const fechaStr = document.getElementById('diagrama-fecha-sel').value;
   if(!fechaStr) return;
   const fechaBase = new Date(fechaStr+'T12:00:00');
@@ -230,7 +235,11 @@ function renderDiagramaSemana() {
 window.renderDiagramaSemana = renderDiagramaSemana;
 
 function renderDiagramaTabla() {
-  if(!diagramaActual) return;
+  if(!diagramaActual) {
+    document.getElementById('diagrama-tabla-inner').innerHTML =
+      `<div style="text-align:center;padding:40px 16px;font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">Sin diagrama cargado</div>`;
+    return;
+  }
   const datos = diagramaActual.datos || [];
   if(!datos.length) return;
 
@@ -315,7 +324,7 @@ async function cargarDiagrama() {
   const mesNombre = MESES[parseInt(mes)-1]+' '+anio;
   try {
     setSyncStatus('syncing','🔄 Guardando...');
-    await addDoc(collection(db,'diagramas'), {
+    const ref = await addDoc(collection(db,'diagramas'), {
       mes: mesInput, mesNombre, datos,
       timestamp: serverTimestamp(),
       cargadoPor: auth.currentUser?.email || ''
@@ -324,6 +333,7 @@ async function cargarDiagrama() {
     showToast('✔ Diagrama guardado', false);
     document.getElementById('diagrama-json-input').value = '';
     diagramaActual = { mes: mesInput, mesNombre, datos };
+    diagramaActualId = ref.id;
     setVistasDiagrama(vistaActual);
   } catch(e) {
     showToast('Error al guardar diagrama', true);
@@ -331,3 +341,22 @@ async function cargarDiagrama() {
   }
 }
 window.cargarDiagrama = cargarDiagrama;
+
+async function eliminarDiagrama() {
+  if(!diagramaActualId) { showToast('No hay diagrama cargado', true); return; }
+  if(!confirm('¿Eliminar el diagrama actual de Firestore? Esta acción no se puede deshacer.')) return;
+  try {
+    setSyncStatus('syncing','🔄 Eliminando...');
+    await deleteDoc(doc(db,'diagramas',diagramaActualId));
+    setSyncStatus('online','🟢 Online');
+    showToast('Diagrama eliminado', false);
+    diagramaActual = null;
+    diagramaActualId = null;
+    setVistasDiagrama(vistaActual);
+  } catch(e) {
+    showToast('Error al eliminar diagrama', true);
+    setSyncStatus('online','🟢 Online');
+    console.error(e);
+  }
+}
+window.eliminarDiagrama = eliminarDiagrama;
