@@ -236,7 +236,23 @@ function renderDiagramaTabla() {
 
   const diasSet = new Set();
   datos.forEach(p => Object.keys(p.dias||{}).forEach(d => diasSet.add(parseInt(d))));
-  const dias = Array.from(diasSet).sort((a,b)=>parseInt(a)-parseInt(b)).map(String);
+  const diasOrdenados = Array.from(diasSet).map(Number).sort((a,b)=>a-b);
+  // Si el diagrama abarca dos meses (ej: días 22-31 + 1-6), Object.keys siempre
+  // devuelve las claves numéricas en orden ascendente, rompiendo el orden cronológico.
+  // Detectamos la frontera de mes como el mayor salto entre días consecutivos.
+  let dias;
+  if (diasOrdenados.length > 1) {
+    let maxGap = 0, maxGapIdx = 0;
+    for (let i = 1; i < diasOrdenados.length; i++) {
+      const gap = diasOrdenados[i] - diasOrdenados[i-1];
+      if (gap > maxGap) { maxGap = gap; maxGapIdx = i; }
+    }
+    dias = maxGap > 5
+      ? [...diasOrdenados.slice(maxGapIdx), ...diasOrdenados.slice(0, maxGapIdx)].map(String)
+      : diasOrdenados.map(String);
+  } else {
+    dias = diasOrdenados.map(String);
+  }
   const diaHoy = String(new Date().getDate());
   const nombreUsuario = document.getElementById('meta-recorredor')?.value || '';
 
