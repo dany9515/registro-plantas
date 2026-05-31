@@ -240,7 +240,7 @@ function renderDiagramaTabla() {
   const diaHoy = String(new Date().getDate());
   const nombreUsuario = document.getElementById('meta-recorredor')?.value || '';
 
-  let html = '<table style="width:100%;border-collapse:collapse;min-width:600px;">';
+  let html = '<table style="width:max-content;border-collapse:collapse;">';
   html += '<thead><tr><th style="text-align:left;padding:8px 10px;font-family:var(--font-mono);font-size:0.68rem;color:#64748b;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.08);min-width:130px;">NOMBRE</th>';
   dias.forEach(d => {
     const esHoy = d === diaHoy;

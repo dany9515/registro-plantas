@@ -1180,7 +1180,7 @@
       <!-- Contenedor vista tabla -->
       <div id="diagrama-tabla-container" style="display:none;">
         <div class="section">
-          <div class="section-body" style="padding:8px;overflow-x:auto;">
+          <div class="section-body" style="padding:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
             <div id="diagrama-tabla-inner"></div>
           </div>
         </div>
@@ -1303,7 +1303,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=20260530"></script>
+<script type="module" src="./js/main.js?v=20260531"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});

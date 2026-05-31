@@ -2,7 +2,7 @@ import { cargarUltimoNivel } from './plantas.js?v=20260530';
 import './supervisor.js?v=20260530';
 import './auth.js?v=20260530';
 import './parte.js?v=20260530';
-import './diagrama.js?v=20260530';
+import './diagrama.js?v=20260531';
 
 const plantNavBtns = document.querySelectorAll('.plant-tab');
 plantNavBtns.forEach(btn => {
