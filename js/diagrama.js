@@ -236,7 +236,7 @@ function renderDiagramaTabla() {
 
   const diasSet = new Set();
   datos.forEach(p => Object.keys(p.dias||{}).forEach(d => diasSet.add(parseInt(d))));
-  const dias = Array.from(diasSet).sort((a,b)=>a-b).map(String);
+  const dias = Array.from(diasSet).sort((a,b)=>parseInt(a)-parseInt(b)).map(String);
   const diaHoy = String(new Date().getDate());
   const nombreUsuario = document.getElementById('meta-recorredor')?.value || '';
 
