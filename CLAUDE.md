@@ -218,6 +218,29 @@ Dos capas:
 
 ---
 
+### Sesión 2026-06-04 (fix) — doble encoding UTF-8 en index.html (`a16bbc4`)
+
+**Causa del bug**
+- El commit `79ce039` guardó `index.html` con UTF-8 BOM + doble encoding: el editor abrió el archivo como Latin-1, lo que convirtió cada byte multibyte en un carácter Latin-1; al guardar en UTF-8, cada uno de esos caracteres se volvió a encodear, produciendo secuencias rotas (`Ã"` en lugar de `Ó`, `ðŸ"„` en lugar de 🔄, etc.)
+- Afectaba todo el archivo — 315 líneas con emojis, tildes y ñ
+
+**Diagnóstico**
+1. `file index.html` reveló "UTF-8 (with BOM)" — señal de que el editor agregó BOM
+2. `git diff <commit-bueno> <commit-roto> -- index.html` confirmó la corrupción masiva vs. el commit anterior limpio
+3. `git show <commit-bueno>:index.html | head -35` mostró los caracteres correctos — el problema era solo del commit reciente
+
+**Fix aplicado**
+- Restaurar desde el commit limpio: `git show 8d5fba5:index.html > index.html`
+- Aplicar manualmente los cambios funcionales reales del commit roto: versión `?v=20260604` en `main.js` y el nuevo HTML del supervisor (keyword + rango) en encoding correcto
+
+**Regla aprendida — encoding en este proyecto**
+- `index.html` debe ser **UTF-8 sin BOM** — verificar con `file index.html` antes de cada commit
+- Si el output muestra `UTF-8 (with BOM)`: el archivo fue abierto como Latin-1 y re-guardado → todo el contenido con caracteres no-ASCII está corrupto
+- Señal de alerta rápida: `grep -c "Ã\|ðŸ\|â€" index.html` — si devuelve > 0, hay doble encoding
+- Causa más probable: editor configurado para abrir archivos como Windows-1252/Latin-1 en vez de UTF-8
+
+---
+
 ## Pendientes — ordenados por prioridad
 
 ### Funcionalidades nuevas
