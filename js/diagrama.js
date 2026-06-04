@@ -1,6 +1,6 @@
 import { collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from './firebase-init.js?v=20260531';
-import { showToast, setSyncStatus } from './ui.js?v=20260531';
+import { auth, db } from './firebase-init.js?v=20260604';
+import { showToast, setSyncStatus } from './ui.js?v=20260604';
 
 let diagramaActual = null;
 let diagramaActualId = null;

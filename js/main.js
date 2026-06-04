@@ -1,8 +1,8 @@
-import { cargarUltimoNivel } from './plantas.js?v=20260531';
-import './supervisor.js?v=20260531';
-import './auth.js?v=20260531';
-import './parte.js?v=20260531';
-import './diagrama.js?v=20260531';
+import { cargarUltimoNivel } from './plantas.js?v=20260604';
+import './supervisor.js?v=20260604';
+import './auth.js?v=20260604';
+import './parte.js?v=20260604';
+import './diagrama.js?v=20260604';
 
 const plantNavBtns = document.querySelectorAll('.plant-tab');
 plantNavBtns.forEach(btn => {

@@ -1,6 +1,10 @@
-import { collection, addDoc, updateDoc, doc, query, where, orderBy, limit, startAfter, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from './firebase-init.js?v=20260531';
-import { showToast, setSyncStatus } from './ui.js?v=20260531';
+import { collection, addDoc, updateDoc, doc, getDoc, query, where, orderBy, limit, startAfter, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, db } from './firebase-init.js?v=20260604';
+import { showToast, setSyncStatus } from './ui.js?v=20260604';
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ── Variación de nivel en tiempo real ────────────────────────────────────────
 const ultimoNivel = {};
@@ -110,13 +114,13 @@ export let ultimoRegistroPorPlanta = {};
 
 export async function cargarUltimoRegistro() {
   const plantas = ['23T','17T','PPA','ED1','EC19','AGUADA','O87'];
-  for(const planta of plantas) {
+  await Promise.all(plantas.map(async planta => {
     try {
       const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'), limit(1));
       const snap = await getDocs(q);
       if(!snap.empty) ultimoRegistroPorPlanta[planta] = snap.docs[0].data();
     } catch(e) {}
-  }
+  }));
 }
 
 // ── Autocompletar ────────────────────────────────────────────────────────────
@@ -406,8 +410,8 @@ function renderHistorial(planta, docs, ahora) {
 
     const secHtml = secciones.map(sec => {
       const camposHtml = sec.campos.filter(c => r.datos?.[c] && r.datos[c]!=='—').map(c => {
-        if(c==='Novedades') return `<div class="reg-novedades">${r.datos[c]}</div>`;
-        return `<div class="reg-campo"><span class="reg-campo-nombre">${c}</span><span class="reg-campo-valor">${r.datos[c]}</span></div>`;
+        if(c==='Novedades') return `<div class="reg-novedades">${escapeHtml(r.datos[c])}</div>`;
+        return `<div class="reg-campo"><span class="reg-campo-nombre">${c}</span><span class="reg-campo-valor">${escapeHtml(r.datos[c])}</span></div>`;
       }).join('');
       if(!camposHtml) return '';
       return `<div class="reg-seccion"><div class="reg-seccion-title">${sec.titulo}</div>${camposHtml}</div>`;
@@ -418,8 +422,8 @@ function renderHistorial(planta, docs, ahora) {
     return `<div class="reg-card">
       <div class="reg-header" onclick="toggleAcordeon(this)">
         <div class="reg-header-left">
-          <div class="reg-meta">📅 ${r.fecha} | ${r.turno} | 👤 ${r.recorredor}${editadoLabel}</div>
-          <div class="reg-vuelta">🔄 Vuelta ${r.vuelta||'—'} &nbsp;⏱ ${r.hora||'—'}hs</div>
+          <div class="reg-meta">📅 ${escapeHtml(r.fecha)} | ${escapeHtml(r.turno)} | 👤 ${escapeHtml(r.recorredor)}${editadoLabel}</div>
+          <div class="reg-vuelta">🔄 Vuelta ${escapeHtml(r.vuelta||'—')} &nbsp;⏱ ${escapeHtml(r.hora||'—')}hs</div>
         </div>
         <div class="reg-arrow">▼</div>
       </div>
@@ -493,11 +497,9 @@ let editDocId = '', editPlanta = '';
 window.editarRegistro = async function(docId, planta) {
   editDocId = docId; editPlanta = planta;
   try {
-    const q = query(collection(db,'registros'), where('planta','==',planta), orderBy('timestamp','desc'));
-    const snap = await getDocs(q);
-    let registro = null;
-    snap.docs.forEach(d => { if(d.id === docId) registro = d.data(); });
-    if(!registro) { showToast('No se encontró el registro', true); return; }
+    const snap = await getDoc(doc(db,'registros',docId));
+    if(!snap.exists()) { showToast('No se encontró el registro', true); return; }
+    const registro = snap.data();
 
     const datos = registro.datos || {};
     const camposHtml = Object.entries(datos).map(([campo, valor]) => {

@@ -1,9 +1,9 @@
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { auth, db } from './firebase-init.js?v=20260531';
-import { showToast, mostrarWelcome } from './ui.js?v=20260531';
-import { cargarUltimoNivel, cargarUltimoRegistro } from './plantas.js?v=20260531';
-import { cargarNovedadesSupervisor } from './supervisor.js?v=20260531';
+import { auth, db } from './firebase-init.js?v=20260604';
+import { showToast, mostrarWelcome } from './ui.js?v=20260604';
+import { cargarUltimoNivel, cargarUltimoRegistro } from './plantas.js?v=20260604';
+import { cargarNovedadesSupervisor } from './supervisor.js?v=20260604';
 
 async function iniciarConUsuario(user) {
   let nombre, rol;
@@ -40,11 +40,6 @@ async function iniciarConUsuario(user) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('supervisor-screen').style.display = 'block';
-    const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth()+1).padStart(2,'0');
-    const dd = String(hoy.getDate()).padStart(2,'0');
-    document.getElementById('sup-fecha').value = `${yyyy}-${mm}-${dd}`;
     cargarNovedadesSupervisor();
     return;
   }
