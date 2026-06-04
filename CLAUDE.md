@@ -77,8 +77,8 @@ Todos los imports usan rutas **relativas** (`./firebase-init.js`, no `/js/fireba
 ### Cache busting al deployar
 Dos capas:
 1. **`?v=YYYYMMDD`** en todos los imports locales — rompe caché del CDN Cloudflare. Cambiar la fecha en cada deploy que modifique JS.
-   - En `index.html`: `src="./js/main.js?v=20260531"`
-   - En cada módulo JS: `from './firebase-init.js?v=20260531'`
+   - En `index.html`: `src="./js/main.js?v=20260604"`
+   - En cada módulo JS: `from './firebase-init.js?v=20260604'`
 2. **Service Worker (`sw.js`)** — intercepta JS del mismo origen, siempre valida con el servidor (`cache: 'no-cache'`). Sirve desde caché si no hay red. Automático, no requiere acción manual.
 
 ### Si un usuario tiene la app cacheada con código viejo
@@ -97,12 +97,14 @@ Dos capas:
 | `doLogout()` | js/auth.js | Cierre de sesión con confirmación |
 | `cambiarPassword()` | js/auth.js | Reautentica y cambia contraseña |
 | `cargarUltimoNivel(planta)` | js/plantas.js | Trae el nivel más reciente de una planta (limit 1) |
-| `cargarUltimoRegistro()` | js/plantas.js | Trae el último registro de cada planta (7 queries en serie, limit 1 c/u) |
+| `cargarUltimoRegistro()` | js/plantas.js | Trae el último registro de cada planta (7 queries en paralelo con Promise.all, limit 1 c/u) |
 | `guardarPlanta(planta)` | js/plantas.js | Guarda registro en Firestore y limpia el formulario |
 | `verHistorial(planta)` | js/plantas.js | Abre modal con últimas 48hs, cursor-based pagination |
 | `cargarMasHistorial(planta)` | js/plantas.js | Carga 20 registros más usando startAfter |
-| `editarRegistro(docId, planta)` | js/plantas.js | Abre modal de edición (hace query completa — pendiente de optimizar) |
-| `cargarNovedadesSupervisor()` | js/supervisor.js | Filtra novedades por fecha y planta (descarga toda la colección — pendiente de limitar) |
+| `editarRegistro(docId, planta)` | js/plantas.js | Abre modal de edición — usa `getDoc` directo por docId |
+| `cargarNovedadesSupervisor()` | js/supervisor.js | Carga novedades por rango de timestamp: 7 días default, fecha específica, o keyword+rango. Planta y keyword se filtran localmente |
+| `supOnFecha()` | js/supervisor.js | Limpia keyword y dispara carga por fecha específica |
+| `supOnKeyword()` | js/supervisor.js | Limpia fecha y dispara búsqueda por keyword con debounce 400ms |
 | `cargarDatosParte()` | js/parte.js | Carga automáticos al abrir el parte (acumulados, químicos, cierre micro) |
 | `generarPartePDF()` | js/parte.js | Guarda parte en Firestore y genera HTML para imprimir/compartir |
 | `calcTotal(campo)` | js/parte.js | Calcula total (actual − anterior) en una fila del parte; llamado desde oninput HTML |
@@ -155,6 +157,26 @@ Dos capas:
 | 8 | `js/diagrama.js` | `d5d57d7` |
 | 9 | `js/main.js` | `d5d57d7` |
 
+### Sesión 2026-06-04 — performance, seguridad y supervisor renovado (`79ce039`)
+
+**Performance**
+- `cargarUltimoRegistro`: reemplazado `for...of` con `await` por `Promise.all` — 7 queries en paralelo, login ~1s más rápido
+- `editarRegistro`: reemplazada query completa por `getDoc(doc(db,'registros',docId))` directo — 10× más rápido
+
+**Seguridad**
+- `escapeHtml()` agregada en `js/plantas.js` — aplicada a todos los campos de usuario en `renderHistorial` (datos, fecha, turno, recorredor, vuelta, hora)
+
+**Pantalla supervisor renovada**
+- Carga inicial automática: últimos 7 días sin necesidad de seleccionar filtros
+- Filtro por fecha: query a Firestore por rango de timestamp del día seleccionado (no filtro local)
+- Búsqueda por keyword: campo de texto con debounce 400ms, busca en `datos.Novedades`; rango "Última semana" / "Último mes" siempre visible
+- Palabras encontradas se resaltan en amarillo en los resultados
+- Fecha y keyword son mutuamente excluyentes (limpian el otro al activarse)
+- Filtro por planta siempre aplicado localmente en combinación con cualquier modo
+- Cache busting actualizado a `v=20260604`
+
+---
+
 ### Sesión 2026-05-31 — diagrama conectado a Firestore (`8d5fba5`)
 
 - `renderDiagrama()` ya no usa `JSON_PRUEBA` hardcodeado — siempre lee Firestore con `orderBy('timestamp','desc'), limit(1)`
@@ -198,32 +220,8 @@ Dos capas:
 
 ## Pendientes — ordenados por prioridad
 
-### Mejoras técnicas (rápidas, bajo riesgo)
-
-1. **`cargarUltimoRegistro` en serie → `Promise.all`**
-   - 7 queries con `await` en `for...of` → van de a una
-   - Cambiar a `Promise.all(plantas.map(...))` → van en paralelo
-   - Archivo: `js/plantas.js` — función `cargarUltimoRegistro`
-   - Impacto: login ~1s más rápido
-
-2. **`editarRegistro` usa query completa para buscar un doc por ID**
-   - Hace `getDocs(query(...where planta==X...))` y busca el ID en el array
-   - Cambiar a `getDoc(doc(db,'registros',docId))` directo
-   - Archivo: `js/plantas.js` — función `editarRegistro`
-   - Una línea de cambio, 10× más rápido
-
-3. **`cargarNovedadesSupervisor` sin límite**
-   - Descarga toda la colección `registros` sin `limit`
-   - Agregar `limit(200)` como techo razonable
-   - Archivo: `js/supervisor.js`
-
-4. **XSS leve en historial**
-   - Campo `Novedades` se inserta como `innerHTML` sin escapar
-   - Archivo: `js/plantas.js` — función `renderHistorial`
-   - Riesgo bajo (sistema interno), pero vale corregir
-
 ### Funcionalidades nuevas
 
-5. **Exportación CSV/Excel de registros** — media complejidad
-6. **Tests de funciones de cálculo** — media complejidad
-7. **Manejo de conflictos multi-usuario** — alta complejidad
+1. **Exportación CSV/Excel de registros** — media complejidad
+2. **Tests de funciones de cálculo** — media complejidad
+3. **Manejo de conflictos multi-usuario** — alta complejidad
