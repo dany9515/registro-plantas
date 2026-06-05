@@ -76,9 +76,10 @@ Todos los imports usan rutas **relativas** (`./firebase-init.js`, no `/js/fireba
 
 ### Cache busting al deployar
 Dos capas:
-1. **`?v=YYYYMMDD`** en todos los imports locales — rompe caché del CDN Cloudflare. Cambiar la fecha en cada deploy que modifique JS.
-   - En `index.html`: `src="./js/main.js?v=20260604"`
+1. **`?v=YYYYMMDD`** en todos los imports locales — rompe caché del CDN Cloudflare. Cambiar la fecha en cada deploy que modifique JS o CSS.
+   - En `index.html` (JS): `src="./js/main.js?v=20260604"`
    - En cada módulo JS: `from './firebase-init.js?v=20260604'`
+   - En `index.html` (CSS): `<link rel="stylesheet" href="css/estilos.css?v=20260605">` — **el CSS también necesita `?v=`**, de lo contrario Cloudflare cachea el archivo viejo y los cambios no se ven en producción.
 2. **Service Worker (`sw.js`)** — intercepta JS del mismo origen, siempre valida con el servidor (`cache: 'no-cache'`). Sirve desde caché si no hay red. Automático, no requiere acción manual.
 
 ### Si un usuario tiene la app cacheada con código viejo
