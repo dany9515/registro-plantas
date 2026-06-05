@@ -298,7 +298,7 @@
 
   /* SUPERVISOR — layout móvil */
   @media(max-width:480px){
-    #supervisor-screen .meta-card > div:first-child{flex-wrap:wrap !important;}
-    #supervisor-screen .meta-card > div:first-child > div{flex:1 1 100% !important;}
-    #sup-rango-container{flex-wrap:wrap !important;gap:10px !important;}
+    #supervisor-screen .meta-card > div:first-child{flex-direction:column !important;gap:10px !important;}
+    #supervisor-screen .meta-card > div:first-child > div{flex:none !important;width:100% !important;}
+    #sup-rango-container{gap:16px !important;}
   }
