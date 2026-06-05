@@ -295,3 +295,10 @@
     .parte-input{font-size:0.75rem;padding:5px 3px;}
     .parte-row-name{font-size:0.65rem;}
   }
+
+  /* SUPERVISOR — layout móvil */
+  @media(max-width:480px){
+    #supervisor-screen .meta-card > div:first-child{flex-wrap:wrap !important;}
+    #supervisor-screen .meta-card > div:first-child > div{flex:1 1 100% !important;}
+    #sup-rango-container{flex-wrap:wrap !important;gap:10px !important;}
+  }
