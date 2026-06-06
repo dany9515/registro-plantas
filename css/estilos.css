@@ -302,3 +302,10 @@
     #supervisor-screen .meta-card > div:first-child > div{flex:none !important;width:100% !important;}
     #sup-rango-container{gap:16px !important;}
   }
+
+  @media(max-width:600px){
+    #sup-fecha,
+    #sup-planta,
+    #sup-keyword{width:100%;}
+    #sup-rango-container{flex-wrap:wrap;gap:10px;}
+  }
