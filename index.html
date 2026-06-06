@@ -1232,14 +1232,14 @@
   </div>
   <div class="container">
     <div class="meta-card">
-      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">
-        <div style="display:flex;flex-direction:column;gap:4px;flex:1">
+      <div class="sup-filtros-fila">
+        <div class="sup-filtro-col">
           <label>📅 Fecha específica</label>
-          <input type="date" id="sup-fecha" onchange="supOnFecha()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:0.95rem;padding:10px 12px;outline:none;color-scheme:dark;">
+          <input type="date" id="sup-fecha" onchange="supOnFecha()" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:0.95rem;padding:10px 12px;outline:none;color-scheme:dark;">
         </div>
-        <div style="display:flex;flex-direction:column;gap:4px;flex:1">
+        <div class="sup-filtro-col">
           <label>🏭 Planta</label>
-          <select id="sup-planta" onchange="cargarNovedadesSupervisor()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
+          <select id="sup-planta" onchange="cargarNovedadesSupervisor()" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
             <option value="todas">Todas</option>
             <option value="23T">23T</option>
             <option value="17T">17T</option>
@@ -1251,16 +1251,16 @@
           </select>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:4px">
+      <div class="sup-filtro-full">
         <label>🔍 Búsqueda</label>
-        <input type="text" id="sup-keyword" oninput="supOnKeyword()" placeholder="Escribí una palabra clave..." style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
+        <input type="text" id="sup-keyword" oninput="supOnKeyword()" placeholder="Escribí una palabra clave..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-body);font-size:1rem;padding:10px 12px;outline:none;">
       </div>
-      <div id="sup-rango-container" style="display:flex;align-items:center;gap:20px;padding-top:10px">
-        <span style="font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);text-transform:uppercase;white-space:nowrap">⏱ Rango:</span>
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--text);white-space:nowrap">
+      <div id="sup-rango-container">
+        <span style="font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);text-transform:uppercase">⏱ Rango:</span>
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--text)">
           <input type="radio" name="sup-rango" value="semana" checked onchange="cargarNovedadesSupervisor()"> Última semana
         </label>
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--text);white-space:nowrap">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--text)">
           <input type="radio" name="sup-rango" value="mes" onchange="cargarNovedadesSupervisor()"> Último mes
         </label>
       </div>
