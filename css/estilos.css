@@ -297,12 +297,13 @@
   }
 
   /* SUPERVISOR — filtros */
-  .sup-filtros-fila{display:flex;gap:12px;margin-bottom:12px;}
+  #supervisor-screen .meta-card{display:flex;flex-direction:column;gap:12px;}
+  .sup-filtros-fila{display:flex;gap:12px;}
   .sup-filtro-col{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
   .sup-filtro-col input,.sup-filtro-col select{width:100%;}
-  .sup-filtro-full{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+  .sup-filtro-full{display:flex;flex-direction:column;gap:4px;}
   .sup-filtro-full input{width:100%;}
-  #sup-rango-container{display:flex;align-items:center;flex-wrap:wrap;gap:16px;padding-top:10px;}
+  #sup-rango-container{display:flex;align-items:center;flex-wrap:wrap;gap:16px;}
   @media(max-width:520px){
     .sup-filtros-fila{flex-direction:column;}
   }
