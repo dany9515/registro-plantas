@@ -244,6 +244,31 @@ Dos capas:
 
 ---
 
+### Sesión 2026-06-05 — fix layout supervisor móvil (`a5caa18`)
+
+**Problema**
+Los filtros de la pantalla supervisor se salían de la pantalla y estaban desordenados en móvil. Se intentaron varias soluciones con media queries que no funcionaron.
+
+**Diagnóstico de las causas reíces**
+1. **`.meta-card` tiene `display:grid;grid-template-columns:1fr 1fr`** — metía cada hijo del card en una columna de la grilla, ignorando todo lo que se hiciera adentro. El input de keyword quedaba en la columna derecha, el rango-container en posición incorrecta.
+2. **Los estilos inline del HTML original** (`display:flex;flex:1;gap:20px` etc.) tenían especificidad máxima y bloqueaban cualquier media query del CSS externo.
+3. **El Service Worker solo intercepta JS** (`destination === 'script'`), no CSS. Cloudflare cacheaba `estilos.css` y los cambios en ese archivo no llegaban al browser aunque el `?v=` se actualizara — o llegaban tarde.
+
+**Solución aplicada**
+- **`<style>` en el `<head>` del HTML** (`index.html` líneas 19–29): los estilos del supervisor se movieron al propio HTML. El CSS viaja con el HTML, no como archivo separado sujeto a caché agresiva de Cloudflare.
+- **`.sup-card` en lugar de `.meta-card`** para el contenedor de filtros del supervisor: elimina para siempre el conflicto con el grid de `.meta-card`. No hay override ni `!important` necesarios.
+- **Clases CSS propias** sin inline styles de layout:
+  - `.sup-card` — flex column, gap 12px, estilos visuales del card
+  - `.sup-filtros-fila` — flex row (fecha + planta), se apila en ≤520px
+  - `.sup-filtro-col` — flex column, `flex:1`, `min-width:0`
+  - `.sup-filtro-full` — flex column, ancho completo (búsqueda)
+  - `#sup-rango-container` — flex row con `flex-wrap:wrap`
+
+**Lección clave**
+Antes de agregar media queries o overrides, verificar si el contenedor padre tiene un `display:grid` que esté forzando el layout. El override `#id .clase` puede ganar en especificidad pero si el CSS externo no carga por caché, el override no existe. La solución robusta es: estilos de layout en `<style>` inline del HTML + clase propia sin conflictos de herencia.
+
+---
+
 ## Pendientes — ordenados por prioridad
 
 ### Funcionalidades nuevas
