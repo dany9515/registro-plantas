@@ -82,6 +82,8 @@ Dos capas:
    - En `index.html` (CSS): `<link rel="stylesheet" href="css/estilos.css?v=20260605">` — **el CSS también necesita `?v=`**, de lo contrario Cloudflare cachea el archivo viejo y los cambios no se ven en producción.
 2. **Service Worker (`sw.js`)** — intercepta JS del mismo origen, siempre valida con el servidor (`cache: 'no-cache'`). Sirve desde caché si no hay red. Automático, no requiere acción manual.
 
+> **REGLA OBLIGATORIA PARA CLAUDE:** Cada vez que se modifica `css/estilos.css` o cualquier archivo JS, el `?v=` correspondiente en `index.html` **debe actualizarse en el mismo commit**. Si se pushea sin actualizar el `?v=`, Cloudflare sigue sirviendo el archivo viejo y los cambios no llegan a producción. No existe excepción.
+
 ### Si un usuario tiene la app cacheada con código viejo
 - Primer deploy con SW: pedir al usuario que limpie caché una última vez para que el SW se instale
 - Deploys siguientes: el SW maneja todo automáticamente
